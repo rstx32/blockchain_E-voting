@@ -61,7 +61,6 @@ const newBlock = (data) => {
   )
   // masukan block baru ke dalam blockchain
   blockchain.push(block)
-  console.log(data.voter)
 }
 
 // coba input block
