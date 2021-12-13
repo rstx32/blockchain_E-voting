@@ -1,0 +1,12 @@
+[
+    {
+        "email": "xtsr23@gmail.com",
+        "nama": "indera restu",
+        "voting": false
+    },
+    {
+        "email": "rstx32@gmail.com",
+        "nama": "restu indera",
+        "voting": true
+    }
+]
