@@ -1,13 +1,15 @@
 const SHA256 = require('crypto-js').SHA256
 
 class Block {
-  // block mempunyai atribut index, previousHash, timestamp, data, dan hash
-  constructor(index, previousHash, timestamp, data, hash) {
+  // block mempunyai atribut index, previousHash, timestamp, data, hash, difficulty, dan nonce
+  constructor(index, previousHash, timestamp, data, hash, difficulty, nonce) {
     this.index = index
     this.previousHash = previousHash
     this.timestamp = timestamp
     this.data = data
     this.hash = hash
+    this.difficulty = difficulty
+    this.nonce = nonce
   }
 }
 
@@ -133,7 +135,46 @@ const isBlockchainValid = (blockchain) => {
   return true
 }
 
-// coba input block
+// validasi apakah enkripsi sudah sesuai dengan ketentuan
+const checkHash = (block, difficulty) => {
+  const binaryHash = hexToBinary(block)
+  const reqDiff = '0'.repeat(difficulty)
+  console.log(binaryHash, reqDiff)
+  return binaryHash.startsWith(reqDiff)
+}
+
+// hexadecimal to binary
+const hexToBinary = (s) => {
+  let ret = ''
+  const lookupTable = {
+    0: '0000',
+    1: '0001',
+    2: '0010',
+    3: '0011',
+    4: '0100',
+    5: '0101',
+    6: '0110',
+    7: '0111',
+    8: '1000',
+    9: '1001',
+    a: '1010',
+    b: '1011',
+    c: '1100',
+    d: '1101',
+    e: '1110',
+    f: '1111',
+  }
+  for (let i = 0; i < s.length; i = i + 1) {
+    if (lookupTable[s[i]]) {
+      ret += lookupTable[s[i]]
+    } else {
+      return null
+    }
+  }
+  return ret
+}
+
+// test zone
 newBlock({
   voter: 'contoh@gmail.com',
   vote: '02',
@@ -148,7 +189,8 @@ newBlock({
 })
 const next = latestBlock()
 
-isBlockchainValid(blockchain)
+console.log(checkHash(blockCalculateHash(next), 1))
+// end of test zone
 
 // export module
 module.exports = { getBlocks, newBlock }
