@@ -14,14 +14,21 @@ class Block {
 }
 
 // fungsi untuk menghitung hash
-const calculateHash = (index, prevHash, timestamp, data) => {
-  return SHA256(index + prevHash + timestamp + data).toString()
+const calculateHash = (index, prevHash, timestamp, data, difficulty, nonce) => {
+  return SHA256(
+    index + prevHash + timestamp + data + difficulty + nonce
+  ).toString()
 }
 
 // fungsi untuk menghitung hash (parameter : block)
 const blockCalculateHash = (block) => {
   return SHA256(
-    block.index + block.previousHash + block.timestamp + block.data
+    block.index +
+      block.previousHash +
+      block.timestamp +
+      block.data +
+      block.difficulty +
+      block.nonce
   ).toString()
 }
 
@@ -31,7 +38,7 @@ const latestBlock = () => {
 }
 
 // fungsi untuk mendapatkan timestamp
-const timestamp = () => {
+const getTimestamp = () => {
   return new Date().getTime()
 }
 
@@ -45,7 +52,9 @@ const genesis = new Block(
     vote: 'genesis block',
     origin: 'genesis block',
   },
-  calculateHash(0, '', 1638105751888, { votersID: '', vote: '', origin: '' })
+  calculateHash(0, '', 1638105751888, { votersID: '', vote: '', origin: '' }),
+  0,
+  0
 )
 
 // inisiasi array of blockchain, dengan block pertama genesis
@@ -60,7 +69,7 @@ const getBlocks = () => {
 const newBlock = (data) => {
   const newIndex = latestBlock().index + 1
   const prevHash = latestBlock().hash
-  const newTimestamp = timestamp()
+  const newTimestamp = getTimestamp()
   const block = new Block(
     newIndex,
     prevHash,
@@ -136,10 +145,10 @@ const isBlockchainValid = (blockchain) => {
 }
 
 // validasi apakah enkripsi sudah sesuai dengan ketentuan
-const checkHash = (block, difficulty) => {
-  const binaryHash = hexToBinary(block)
+const isHashMatchDifficulty = (blockHash, difficulty) => {
+  const binaryHash = hexToBinary(blockHash)
+  console.log(`binary : ${binaryHash}\n`)
   const reqDiff = '0'.repeat(difficulty)
-  console.log(binaryHash, reqDiff)
   return binaryHash.startsWith(reqDiff)
 }
 
@@ -174,22 +183,33 @@ const hexToBinary = (s) => {
   return ret
 }
 
+// find a block that matches to terms
+const findBlock = (index, prevHash, timestamp, data, diff) => {
+  let nonce = 0
+  while (true) {
+    const hash = calculateHash(index, prevHash, timestamp, data, diff, nonce)
+    console.log(`hash : ${hash}`)
+    if (isHashMatchDifficulty(hash, diff)) {
+      return new Block(index, prevHash, timestamp, data, hash, diff, nonce)
+    }
+    nonce++
+  }
+}
+
 // test zone
-newBlock({
+const index = latestBlock().index + 1
+const prevHash = latestBlock().hash
+const timestamp = getTimestamp()
+const data = {
   voter: 'contoh@gmail.com',
-  vote: '02',
-  origin: '192.168.1.187',
-})
-const prev = latestBlock()
+  vote: '03',
+  origin: '192.168.1.111',
+}
+const diff = 4
+const newblock = findBlock(index, prevHash, timestamp, data, diff)
+console.log(newblock)
+addBlock(newblock)
 
-newBlock({
-  voter: 'contoh2@gmail.com',
-  vote: '01',
-  origin: '192.168.1.182',
-})
-const next = latestBlock()
-
-console.log(checkHash(blockCalculateHash(next), 1))
 // end of test zone
 
 // export module

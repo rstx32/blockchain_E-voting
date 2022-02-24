@@ -3,7 +3,7 @@ const { getBlocks, newBlock } = require('./blockchain')
 const { muatKandidat, auth, voted, isVoting} = require('./file')
 const app = express()
 const ejs = require('ejs')
-require('dotenv').config({ path: './config/.env' })
+require('dotenv').config({ path: './backend/config/.env' })
 
 // body parser
 app.use(express.urlencoded({ extended: true }))
