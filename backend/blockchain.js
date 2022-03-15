@@ -1,3 +1,5 @@
+require('dotenv').config({ path: './backend/config/.env' })
+const diff = process.env.DIFFICULTY
 const SHA256 = require('crypto-js').SHA256
 
 class Block {
@@ -47,12 +49,8 @@ const genesis = new Block(
   0,
   '',
   1638105751888,
-  {
-    voter: 'genesis block',
-    vote: 'genesis block',
-    origin: 'genesis block',
-  },
-  calculateHash(0, '', 1638105751888, { votersID: '', vote: '', origin: '' }),
+  'genesis block',
+  calculateHash(0, '', 1638105751888, 'genesis block'),
   0,
   0
 )
@@ -66,25 +64,29 @@ const getBlocks = () => {
 }
 
 // membuat block baru
-const newBlock = (data) => {
-  const newIndex = latestBlock().index + 1
-  const prevHash = latestBlock().hash
-  const newTimestamp = getTimestamp()
-  const block = new Block(
-    newIndex,
-    prevHash,
-    newTimestamp,
-    data,
-    calculateHash(newIndex, prevHash, newTimestamp, data)
-  )
-  addBlock(block)
-}
+// const newBlock = (data) => {
+//   const newIndex = latestBlock().index + 1
+//   const prevHash = latestBlock().hash
+//   const newTimestamp = getTimestamp()
+//   const block = new Block(
+//     newIndex,
+//     prevHash,
+//     newTimestamp,
+//     data,
+//     diff,
+//     nonce,
+//     calculateHash(newIndex, prevHash, newTimestamp, data)
+//   )
+//   addBlock(block)
+// }
 
 // menambahkan block ke dalam blockchain
 const addBlock = (block) => {
   if (isStructureValid(block) && isBlockValid(latestBlock(), block)) {
     blockchain.push(block)
+    return true
   }
+  return false
 }
 
 // memvalidasi isi tipe data block
@@ -94,9 +96,8 @@ const isStructureValid = (block) => {
     typeof block.previousHash === 'string' &&
     typeof block.timestamp === 'number' &&
     typeof block.data === 'object' &&
-    typeof block.data.voter === 'string' &&
     typeof block.data.vote === 'string' &&
-    typeof block.data.origin === 'string' &&
+    typeof block.data.signature === 'string' &&
     typeof block.hash === 'string'
   )
 }
@@ -147,7 +148,6 @@ const isBlockchainValid = (blockchain) => {
 // validasi apakah enkripsi sudah sesuai dengan ketentuan
 const isHashMatchDifficulty = (blockHash, difficulty) => {
   const binaryHash = hexToBinary(blockHash)
-  console.log(`binary : ${binaryHash}\n`)
   const reqDiff = '0'.repeat(difficulty)
   return binaryHash.startsWith(reqDiff)
 }
@@ -183,12 +183,11 @@ const hexToBinary = (s) => {
   return ret
 }
 
-// find a block that matches to terms
+// menemukan block dengan hash sesuai dengan ketentuan
 const findBlock = (index, prevHash, timestamp, data, diff) => {
   let nonce = 0
   while (true) {
     const hash = calculateHash(index, prevHash, timestamp, data, diff, nonce)
-    console.log(`hash : ${hash}`)
     if (isHashMatchDifficulty(hash, diff)) {
       return new Block(index, prevHash, timestamp, data, hash, diff, nonce)
     }
@@ -201,16 +200,38 @@ const index = latestBlock().index + 1
 const prevHash = latestBlock().hash
 const timestamp = getTimestamp()
 const data = {
-  voter: 'contoh@gmail.com',
-  vote: '03',
-  origin: '192.168.1.111',
+  voter: `-----BEGIN RSA PUBLIC KEY-----
+  MIIBCgKCAQEA1f5L+DY/dC+WYCFL4hxh7mERC1Hf1DauCgQ3hBSBKFGiw4YZRcxj
+  Zy7DTei4fdpITI9lm/ZR7+Ir58VdxnCj90n/VQpvLFc8GI9iE6u7iKYZzCE97ykh
+  SB4U6UnWSWYn3ngOzMV60aZ0WR5B8gmr+rgDrnVcqFT3FCmnojZERTlUYiUMKwqt
+  fPLG9ggZ+lxl9fbRTIoy1smJqsXCduD+s0VeeFiFNjXAN70bhZgo7HpnAKt0Kcpy
+  kAlK7cOnfiJiggVF1rD+BjUlotkv9gWnecK/DvkVsiKFEmh11Ydp3rwubYjyhJX9
+  4U1/IBtSt5qsjjVRyn75WHlly4Z3gAqZYQIDAQAB
+  -----END RSA PUBLIC KEY-----`,
+  vote: 'jokowi',
+  signature:
+    'UkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==',
 }
-const diff = 4
-const newblock = findBlock(index, prevHash, timestamp, data, diff)
-console.log(newblock)
-addBlock(newblock)
+addBlock(findBlock(index, prevHash, timestamp, data, diff))
+
+const index2 = latestBlock().index + 1
+const prevHash2 = latestBlock().hash
+const timestamp2 = getTimestamp()
+const data2 = {
+  vote: 'prabowo',
+  signature:
+    'IkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==',
+}
+addBlock(findBlock(index2, prevHash2, timestamp2, data2, diff))
 
 // end of test zone
 
 // export module
-module.exports = { getBlocks, newBlock }
+module.exports = { getBlocks }
+
+// struktur voters
+// data = {
+//   voter (public key/id),
+//   vote,
+//   signature,
+// }
