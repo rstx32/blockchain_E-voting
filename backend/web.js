@@ -1,20 +1,117 @@
-const express = require('express')
-const { getBlocks, newBlock } = require('./blockchain')
-const { muatKandidat, auth, voted, isVoting} = require('./file')
-const app = express()
-const ejs = require('ejs')
-require('dotenv').config({ path: './backend/config/.env' })
+import express, { urlencoded } from 'express'
+import session from 'express-session'
+import { getBlocks, newBlock } from './blockchain.js'
+import { getCandidates, getVoterPasswd, getVoterPubKey, getVoter } from './getAPI.js'
+import { verify, importRsaKey } from './verification.js'
+import dotenv from 'dotenv'
+import passport from 'passport'
+import LocalStrategy from 'passport-local'
+import flash from 'connect-flash'
+import bcrypt from 'bcryptjs'
+dotenv.config({ path: './backend/config/.env' })
 
-// body parser
-app.use(express.urlencoded({ extended: true }))
-// pake EJS view engine
-app.set('view engine', 'ejs')
-app.use(express.static('public'))
+const app = express()
+  .use(urlencoded({ extended: true }))
+  .set('view engine', 'ejs')
+  .use(express.static('public'))
+  .use(
+    session({
+      cookie: { maxAge: 1000 * 60 * 60 },
+      secret: process.env.SECRET,
+      resave: false,
+      saveUninitialized: true,
+    })
+  )
+  .use(passport.initialize())
+  .use(passport.session())
+  .use(flash())
+
+passport.serializeUser((user, done) => {
+  done(null, user._id)
+})
+passport.deserializeUser((user, done) => {
+  done(null, user)
+})
+
+// passport
+passport.use(
+  'local-login',
+  new LocalStrategy(
+    {
+      usernameField: 'id',
+      passwordField: 'password',
+    },
+    async (id, password, done) => {
+      const voter = await getVoterPasswd(id)
+      const isMatch = bcrypt.compareSync(password, voter.password)
+      if (isMatch) {
+        return done(null, voter)
+      } else {
+        return done(null, false)
+      }
+    }
+  )
+)
+
+// if voter has not logged in
+const isLoggedIn = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    next()
+  } else {
+    req.flash('messageFailure', 'you must logged in first!')
+    res.redirect('login')
+  }
+}
+
+// if voter already logged in, redirect to homepage
+const hasLoggedIn = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    res.redirect('/')
+  } else {
+    next()
+  }
+}
+
+// login
+app.get('/login', hasLoggedIn, async (req, res) => {
+  const errorMessage = req.flash('messageFailure')
+  const successMessage = req.flash('messageSuccess')
+  res.render('auth/login', {
+    errors: errorMessage,
+    success: successMessage,
+  })
+})
+
+app.post(
+  '/login',
+  passport.authenticate('local-login', {
+    failureRedirect: '/login',
+    failureFlash: {
+      type: 'messageFailure',
+      message: 'wrong id or password!',
+    },
+    successRedirect: '/vote',
+    successFlash: {
+      type: 'messageSuccess',
+      message: 'Welcome to EvB dashboard',
+    },
+  }),
+  (req, res) => {}
+)
+
+// logout
+app.get('/logout', (req, res) => {
+  req.logout()
+  req.flash('messageSuccess', 'Logged out')
+  res.redirect('login')
+})
 
 // route homepage
-app.get('/', (req, res) => {
+app.get('/', isLoggedIn, (req, res) => {
+  const successMessage = req.flash('messageSuccess')
   res.render('homepage', {
     title: 'homepage EvB',
+    successMessage,
   })
 })
 
@@ -24,35 +121,36 @@ app.get('/blocks', (req, res) => {
 })
 
 // form vote
-app.get('/vote', (req, res) => {
-  const kandidat = muatKandidat()
+app.get('/vote', async (req, res) => {
+  const candidate = await getCandidates()
+  const voter = await getVoter(req.user)
+  const errorFlash = req.flash('errorMessage')
+  const successFlash = req.flash('successMessage')
   res.render('formVoting', {
-    kandidat,
+    candidate,
     title: 'form vote',
+    voter,
+    errorFlash,
+    successFlash,
   })
 })
 
 // post form voting
-app.post('/vote', (req, res) => {
-  // autentikasi (email)
-  if (auth(req.body.email)) {
-    // cek apakah voters sudah voting
-    if(!isVoting(req.body.email)){
-      // buat block baru
-      newBlock({
-        voter: req.body.email,
-        vote: req.body.kandidat,
-        origin: req.ip,
-      })
-      // ubah status votingg ke true
-      voted(req.body.email)
-      // redirect ke daftar block
-      res.redirect('/blocks')
-    }else{
-      res.send(`user ${req.body.email} sudah melakukan voting!`)
-    }
+app.post('/vote', async (req, res) => {
+  const voterPubkey = await getVoterPubKey(req.body.voterID)
+  const pubkey = await importRsaKey(voterPubkey.public_key)
+  const isVerified = await verify(
+    pubkey,
+    req.body.signature,
+    req.body.candidateID
+  )
+
+  if (isVerified) {
+    req.flash('successMessage', 'voting sukses!')
+    res.redirect('/vote')
   } else {
-    res.send('gagal')
+    req.flash('errorMessage', 'voting gagal!')
+    res.redirect('/vote')
   }
 })
 
@@ -65,6 +163,6 @@ app.use((req, res) => {
 // menjalankan express
 app.listen(process.env.HTTP_PORT, () => {
   console.log(
-    `EvB listening on port : http://localhost:${process.env.HTTP_PORT}/blocks`
+    `EvB listening on port : http://localhost:${process.env.HTTP_PORT}`
   )
 })
