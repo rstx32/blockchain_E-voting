@@ -1,6 +1,7 @@
-require('dotenv').config({ path: './backend/config/.env' })
-const diff = process.env.DIFFICULTY
-const SHA256 = require('crypto-js').SHA256
+import dotenv from 'dotenv'
+import sha265 from 'crypto-js/sha256.js'
+dotenv.config({ path: './backend/config/.env' })
+const diff = parseInt(process.env.DIFFICULTY)
 
 class Block {
   // block mempunyai atribut index, previousHash, timestamp, data, hash, difficulty, dan nonce
@@ -17,14 +18,14 @@ class Block {
 
 // fungsi untuk menghitung hash
 const calculateHash = (index, prevHash, timestamp, data, difficulty, nonce) => {
-  return SHA256(
+  return sha265(
     index + prevHash + timestamp + data + difficulty + nonce
   ).toString()
 }
 
 // fungsi untuk menghitung hash (parameter : block)
 const blockCalculateHash = (block) => {
-  return SHA256(
+  return sha265(
     block.index +
       block.previousHash +
       block.timestamp +
@@ -41,14 +42,14 @@ const latestBlock = () => {
 
 // fungsi untuk mendapatkan timestamp
 const getTimestamp = () => {
-  return new Date().getTime()
+  return new Date()
 }
 
 // genesis untuk block pertama pada blockchain
 const genesis = new Block(
   0,
   '',
-  1638105751888,
+  new Date(1638105751888),
   'genesis block',
   calculateHash(0, '', 1638105751888, 'genesis block'),
   0,
@@ -64,26 +65,21 @@ const getBlocks = () => {
 }
 
 // membuat block baru
-// const newBlock = (data) => {
-//   const newIndex = latestBlock().index + 1
-//   const prevHash = latestBlock().hash
-//   const newTimestamp = getTimestamp()
-//   const block = new Block(
-//     newIndex,
-//     prevHash,
-//     newTimestamp,
-//     data,
-//     diff,
-//     nonce,
-//     calculateHash(newIndex, prevHash, newTimestamp, data)
-//   )
-//   addBlock(block)
-// }
+const newBlock = (data) => {
+  const newIndex = latestBlock().index + 1
+  const prevHash = latestBlock().hash
+  const newTimestamp = getTimestamp()
+  addBlock(findBlock(newIndex, prevHash, newTimestamp, data, diff))
+}
 
 // menambahkan block ke dalam blockchain
 const addBlock = (block) => {
-  if (isStructureValid(block) && isBlockValid(latestBlock(), block)) {
+  if (
+    // isStructureValid(block) &&
+    isBlockValid(latestBlock(), block)
+  ) {
     blockchain.push(block)
+    console.log(`a new block added! ${block.hash}`)
     return true
   }
   return false
@@ -94,11 +90,14 @@ const isStructureValid = (block) => {
   return (
     typeof block.index === 'number' &&
     typeof block.previousHash === 'string' &&
-    typeof block.timestamp === 'number' &&
+    typeof block.timestamp === 'string' &&
     typeof block.data === 'object' &&
+    typeof block.data.voter === 'string' &&
     typeof block.data.vote === 'string' &&
     typeof block.data.signature === 'string' &&
-    typeof block.hash === 'string'
+    typeof block.hash === 'string' &&
+    typeof block.difficulty === 'number' &&
+    typeof block.nonce === 'number'
   )
 }
 
@@ -108,10 +107,12 @@ const isStructureValid = (block) => {
 // 3. cek apakah newBlock.prevHash sama dengan hash block sebelumnya
 // 4. cek ulang hash block
 const isBlockValid = (prevBlock, newBlock) => {
-  if (!isStructureValid(newBlock)) {
-    console.log(`invalid block structure!`)
-    return false
-  } else if (prevBlock.index + 1 !== newBlock.index) {
+  // if (
+  //   !isStructureValid(newBlock)) {
+  //   console.log(`invalid block structure!`)
+  //   return false
+  // } else
+  if (prevBlock.index + 1 !== newBlock.index) {
     console.log('invalid index block')
     return false
   } else if (newBlock.previousHash !== prevBlock.hash) {
@@ -128,7 +129,7 @@ const isBlockValid = (prevBlock, newBlock) => {
 // cek genesis kemudian cek block satu per satu
 const isBlockchainValid = (blockchain) => {
   const isGenesisValid = () => {
-    return SHA256(blockchain[0]).toString() === SHA256(genesis).toString()
+    return sha265(blockchain[0]).toString() === sha265(genesis).toString()
   }
 
   if (!isGenesisValid()) {
@@ -224,10 +225,24 @@ const data2 = {
 }
 addBlock(findBlock(index2, prevHash2, timestamp2, data2, diff))
 
+const data3 = {
+  voter: `-----BEGIN RSA PUBLIC KEY-----
+  MIIBCgKCAQEA1f5L+DY/dC+WYCFL4hxh7mERC1Hf1DauCgQ3hBSBKFGiw4YZRcxj
+  Zy7DTei4fdpITI9lm/ZR7+Ir58VdxnCj90n/VQpvLFc8GI9iE6u7iKYZzCE97ykh
+  SB4U6UnWSWYn3ngOzMV60aZ0WR5B8gmr+rgDrnVcqFT3FCmnojZERTlUYiUMKwqt
+  fPLG9ggZ+lxl9fbRTIoy1smJqsXCduD+s0VeeFiFNjXAN70bhZgo7HpnAKt0Kcpy
+  kAlK7cOnfiJiggVF1rD+BjUlotkv9gWnecK/DvkVsiKFEmh11Ydp3rwubYjyhJX9
+  4U1/IBtSt5qsjjVRyn75WHlly4Z3gAqZYQIDAQAB
+  -----END RSA PUBLIC KEY-----`,
+  vote: 'jokowi',
+  signature: `UkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==`,
+}
+newBlock(data3)
+
 // end of test zone
 
 // export module
-module.exports = { getBlocks }
+export { getBlocks, newBlock }
 
 // struktur voters
 // data = {
