@@ -10,8 +10,8 @@ inputButton.addEventListener('change', function () {
     fr.onload = function () {
       const check = fr.result
       if (
-        check.length !== 1678 &&
-        !check.includes('-----BEGIN PRIVATE KEY-----') &&
+        check.length !== 1678 ||
+        !check.includes('-----BEGIN PRIVATE KEY-----') ||
         !check.includes('-----END PRIVATE KEY-----')
       ) {
         window.alert('isi private key tidak sah!')
