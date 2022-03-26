@@ -1,14 +1,26 @@
 import express, { urlencoded } from 'express'
 import session from 'express-session'
-import { getBlocks, newBlock } from './blockchain.js'
-import { getCandidates, getVoterPasswd, getVoterPubKey, getVoter } from './getAPI.js'
-import { verify, importRsaKey } from './verification.js'
 import dotenv from 'dotenv'
 import passport from 'passport'
 import LocalStrategy from 'passport-local'
 import flash from 'connect-flash'
 import bcrypt from 'bcryptjs'
 dotenv.config({ path: './backend/config/.env' })
+
+import {
+  getBlocks,
+  newBlock,
+  isVoted,
+  getBlock,
+  getCandidatesRecap,
+} from './blockchain.js'
+import {
+  getCandidates,
+  getVoterPasswd,
+  getVoterPubKey,
+  getVoter,
+} from './getAPI.js'
+import { verify, importRsaKey } from './verification.js'
 
 const app = express()
   .use(urlencoded({ extended: true }))
@@ -19,7 +31,7 @@ const app = express()
       cookie: { maxAge: 1000 * 60 * 60 },
       secret: process.env.SECRET,
       resave: false,
-      saveUninitialized: true,
+      saveUninitialized: false,
     })
   )
   .use(passport.initialize())
@@ -116,12 +128,12 @@ app.get('/', isLoggedIn, (req, res) => {
 })
 
 // route untuk daftar blockchain
-app.get('/blocks', (req, res) => {
+app.get('/blocks', isLoggedIn, (req, res) => {
   res.send(getBlocks())
 })
 
 // form vote
-app.get('/vote', async (req, res) => {
+app.get('/vote', isLoggedIn, async (req, res) => {
   const candidate = await getCandidates()
   const voter = await getVoter(req.user)
   const errorFlash = req.flash('errorMessage')
@@ -136,22 +148,46 @@ app.get('/vote', async (req, res) => {
 })
 
 // post form voting
-app.post('/vote', async (req, res) => {
-  const voterPubkey = await getVoterPubKey(req.body.voterID)
+// cek apakah signature terverifikasi
+// cek apakah voter sudah melakukan voting
+app.post('/vote', isLoggedIn, async (req, res) => {
+  const voterPubkey = await getVoterPubKey(req.user)
   const pubkey = await importRsaKey(voterPubkey.public_key)
   const isVerified = await verify(
     pubkey,
     req.body.signature,
     req.body.candidateID
   )
-
   if (isVerified) {
-    req.flash('successMessage', 'voting sukses!')
-    res.redirect('/vote')
+    if (!isVoted(req.body.voterID)) {
+      newBlock(req.body)
+      req.flash('successMessage', 'voting sukses!')
+      res.redirect('/vote')
+    } else {
+      req.flash('errorMessage', 'anda sudah melakukan voting!')
+      res.redirect('/vote')
+    }
   } else {
     req.flash('errorMessage', 'voting gagal!')
     res.redirect('/vote')
   }
+})
+
+// halaman my vote
+app.get('/myvote', isLoggedIn, async (req, res) => {
+  const voter = await getVoter(req.user)
+  const voting = getBlock(req.user)
+  console.log(voting)
+  res.render('myvote', {
+    title: 'My Vote',
+    voter,
+    voting,
+  })
+})
+
+// halaman rekapitulasi
+app.get('/recapitulation', isLoggedIn, async (req, res) => {
+  res.send(await getCandidatesRecap())
 })
 
 // route untuk page not found
