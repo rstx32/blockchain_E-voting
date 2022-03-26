@@ -1,5 +1,7 @@
 import dotenv from 'dotenv'
 import sha265 from 'crypto-js/sha256.js'
+import { getCandidates } from './getAPI.js'
+import e from 'connect-flash'
 dotenv.config({ path: './backend/config/.env' })
 const diff = parseInt(process.env.DIFFICULTY)
 
@@ -74,14 +76,12 @@ const newBlock = (data) => {
 
 // menambahkan block ke dalam blockchain
 const addBlock = (block) => {
-  if (
-    // isStructureValid(block) &&
-    isBlockValid(latestBlock(), block)
-  ) {
+  if (isStructureValid(block) && isBlockValid(latestBlock(), block)) {
     blockchain.push(block)
     console.log(`a new block added! ${block.hash}`)
     return true
   }
+  console.log(`block failed!`)
   return false
 }
 
@@ -90,10 +90,10 @@ const isStructureValid = (block) => {
   return (
     typeof block.index === 'number' &&
     typeof block.previousHash === 'string' &&
-    typeof block.timestamp === 'string' &&
+    typeof block.timestamp === 'object' &&
     typeof block.data === 'object' &&
-    typeof block.data.voter === 'string' &&
-    typeof block.data.vote === 'string' &&
+    typeof block.data.voterID === 'string' &&
+    typeof block.data.candidateID === 'string' &&
     typeof block.data.signature === 'string' &&
     typeof block.hash === 'string' &&
     typeof block.difficulty === 'number' &&
@@ -107,12 +107,10 @@ const isStructureValid = (block) => {
 // 3. cek apakah newBlock.prevHash sama dengan hash block sebelumnya
 // 4. cek ulang hash block
 const isBlockValid = (prevBlock, newBlock) => {
-  // if (
-  //   !isStructureValid(newBlock)) {
-  //   console.log(`invalid block structure!`)
-  //   return false
-  // } else
-  if (prevBlock.index + 1 !== newBlock.index) {
+  if (!isStructureValid(newBlock)) {
+    console.log(`invalid block structure!`)
+    return false
+  } else if (prevBlock.index + 1 !== newBlock.index) {
     console.log('invalid index block')
     return false
   } else if (newBlock.previousHash !== prevBlock.hash) {
@@ -196,12 +194,49 @@ const findBlock = (index, prevHash, timestamp, data, diff) => {
   }
 }
 
+// mengecek apakah voter sudah melakukan voting
+const isVoted = (id) => {
+  for (let index = 0; index < blockchain.length; index++) {
+    if (blockchain[index].data.voterID === id) {
+      return true
+    }
+  }
+  return false
+}
+
+// export detail block
+const getBlock = (id) => {
+  return blockchain.find((voter) => voter.data.voterID == id)
+}
+
+// export candidate vote
+const getCandidatesRecap = async () => {
+  const candidates = await getCandidates()
+  const hasil = []
+  for (let index = 0; index < candidates.length; index++) {
+    hasil[index] = {
+      _id: candidates[index]._id,
+      candidate: candidates[index].candidate,
+      viceCandidate: candidates[index].viceCandidate,
+      photo: candidates[index].photo,
+      count: countCandidate(candidates[index]._id),
+    }
+  }
+  return hasil
+}
+
+// method untuk menghitung jumlah vote kandidat
+const countCandidate = (candidateID) => {
+  let tampung = 0
+  for (const iterator of blockchain) {
+    if(iterator.data.candidateID === candidateID) tampung++
+  }
+  return tampung
+}
+
 // test zone
-const index = latestBlock().index + 1
-const prevHash = latestBlock().hash
-const timestamp = getTimestamp()
-const data = {
-  voter: `-----BEGIN RSA PUBLIC KEY-----
+const data2 = {
+  voterID: `-----BEGIN RSA PUBLIC KEY-----
   MIIBCgKCAQEA1f5L+DY/dC+WYCFL4hxh7mERC1Hf1DauCgQ3hBSBKFGiw4YZRcxj
   Zy7DTei4fdpITI9lm/ZR7+Ir58VdxnCj90n/VQpvLFc8GI9iE6u7iKYZzCE97ykh
   SB4U6UnWSWYn3ngOzMV60aZ0WR5B8gmr+rgDrnVcqFT3FCmnojZERTlUYiUMKwqt
@@ -209,24 +244,14 @@ const data = {
   kAlK7cOnfiJiggVF1rD+BjUlotkv9gWnecK/DvkVsiKFEmh11Ydp3rwubYjyhJX9
   4U1/IBtSt5qsjjVRyn75WHlly4Z3gAqZYQIDAQAB
   -----END RSA PUBLIC KEY-----`,
-  vote: 'jokowi',
+  candidateID: '620f5013b3807d21dd567eef',
   signature:
     'UkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==',
 }
-addBlock(findBlock(index, prevHash, timestamp, data, diff))
-
-const index2 = latestBlock().index + 1
-const prevHash2 = latestBlock().hash
-const timestamp2 = getTimestamp()
-const data2 = {
-  vote: 'prabowo',
-  signature:
-    'IkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==',
-}
-addBlock(findBlock(index2, prevHash2, timestamp2, data2, diff))
+newBlock(data2)
 
 const data3 = {
-  voter: `-----BEGIN RSA PUBLIC KEY-----
+  voterID: `-----BEGIN RSA PUBLIC KEY-----
   MIIBCgKCAQEA1f5L+DY/dC+WYCFL4hxh7mERC1Hf1DauCgQ3hBSBKFGiw4YZRcxj
   Zy7DTei4fdpITI9lm/ZR7+Ir58VdxnCj90n/VQpvLFc8GI9iE6u7iKYZzCE97ykh
   SB4U6UnWSWYn3ngOzMV60aZ0WR5B8gmr+rgDrnVcqFT3FCmnojZERTlUYiUMKwqt
@@ -234,19 +259,12 @@ const data3 = {
   kAlK7cOnfiJiggVF1rD+BjUlotkv9gWnecK/DvkVsiKFEmh11Ydp3rwubYjyhJX9
   4U1/IBtSt5qsjjVRyn75WHlly4Z3gAqZYQIDAQAB
   -----END RSA PUBLIC KEY-----`,
-  vote: 'jokowi',
-  signature: `UkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==`,
+  candidateID: '620f5013b3807d21dd567eef',
+  signature:
+    'UkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==',
 }
 newBlock(data3)
-
 // end of test zone
 
 // export module
-export { getBlocks, newBlock }
-
-// struktur voters
-// data = {
-//   voter (public key/id),
-//   vote,
-//   signature,
-// }
+export { getBlocks, newBlock, isVoted, getBlock, getCandidatesRecap }
