@@ -65,11 +65,11 @@ passport.use(
   )
 )
 
-// if voter already voting
+// if voter already voting, redirect to myvote
 const isVoterVoted = (req, res, next) => {
-  if(isVoted(req.user)){
+  if (isVoted(req.user)) {
     res.redirect('/myvote')
-  }else{
+  } else {
     next()
   }
 }
@@ -149,14 +149,11 @@ app.get('/blocks', (req, res) => {
 app.get('/vote', isLoggedIn, isVoterVoted, async (req, res) => {
   const candidate = await getCandidates()
   const voter = await getVoter(req.user)
-  const errorFlash = req.flash('errorMessage')
-  const successFlash = req.flash('successMessage')
+
   res.render('formVoting', {
     candidate,
     title: 'form vote',
     voter,
-    errorFlash,
-    successFlash,
   })
 })
 
@@ -190,10 +187,13 @@ app.post('/vote', isLoggedIn, async (req, res) => {
 app.get('/myvote', isLoggedIn, async (req, res) => {
   const voter = await getVoter(req.user)
   const voting = getBlock(req.user)
+  const successFlash = req.flash('successMessage')
+
   res.render('myvote', {
     title: 'My Vote',
     voter,
     voting,
+    successFlash,
   })
 })
 

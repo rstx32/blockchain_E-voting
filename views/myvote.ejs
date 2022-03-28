@@ -23,6 +23,12 @@
             <%= title %>
         </h1>
 
+        <% if (successFlash.length> 0) {%>
+            <div class="alert alert-success" role="alert">
+              <%= successFlash %>
+            </div>
+            <% } %>
+
         <div class="container table-responsive">
             <table class="table">
                 <tbody>
