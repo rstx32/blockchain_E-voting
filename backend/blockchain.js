@@ -236,14 +236,7 @@ const countCandidate = (candidateID) => {
 
 // test zone
 const data2 = {
-  voterID: `-----BEGIN RSA PUBLIC KEY-----
-  MIIBCgKCAQEA1f5L+DY/dC+WYCFL4hxh7mERC1Hf1DauCgQ3hBSBKFGiw4YZRcxj
-  Zy7DTei4fdpITI9lm/ZR7+Ir58VdxnCj90n/VQpvLFc8GI9iE6u7iKYZzCE97ykh
-  SB4U6UnWSWYn3ngOzMV60aZ0WR5B8gmr+rgDrnVcqFT3FCmnojZERTlUYiUMKwqt
-  fPLG9ggZ+lxl9fbRTIoy1smJqsXCduD+s0VeeFiFNjXAN70bhZgo7HpnAKt0Kcpy
-  kAlK7cOnfiJiggVF1rD+BjUlotkv9gWnecK/DvkVsiKFEmh11Ydp3rwubYjyhJX9
-  4U1/IBtSt5qsjjVRyn75WHlly4Z3gAqZYQIDAQAB
-  -----END RSA PUBLIC KEY-----`,
+  voterID: `voter1`,
   candidateID: '620f5013b3807d21dd567eef',
   signature:
     'UkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==',
@@ -251,14 +244,7 @@ const data2 = {
 newBlock(data2)
 
 const data3 = {
-  voterID: `-----BEGIN RSA PUBLIC KEY-----
-  MIIBCgKCAQEA1f5L+DY/dC+WYCFL4hxh7mERC1Hf1DauCgQ3hBSBKFGiw4YZRcxj
-  Zy7DTei4fdpITI9lm/ZR7+Ir58VdxnCj90n/VQpvLFc8GI9iE6u7iKYZzCE97ykh
-  SB4U6UnWSWYn3ngOzMV60aZ0WR5B8gmr+rgDrnVcqFT3FCmnojZERTlUYiUMKwqt
-  fPLG9ggZ+lxl9fbRTIoy1smJqsXCduD+s0VeeFiFNjXAN70bhZgo7HpnAKt0Kcpy
-  kAlK7cOnfiJiggVF1rD+BjUlotkv9gWnecK/DvkVsiKFEmh11Ydp3rwubYjyhJX9
-  4U1/IBtSt5qsjjVRyn75WHlly4Z3gAqZYQIDAQAB
-  -----END RSA PUBLIC KEY-----`,
+  voterID: `voter2`,
   candidateID: '620f5013b3807d21dd567eef',
   signature:
     'UkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==',

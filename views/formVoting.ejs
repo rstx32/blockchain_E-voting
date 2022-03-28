@@ -18,59 +18,58 @@
 <body>
   <%- include('layouts/navbar') %>
 
-  <% if (errorFlash.length > 0) { %>
-    <div class="alert alert-danger" role="alert">
-      <%= errorFlash %> 
-    </div>
-  <% } else if (successFlash.length > 0) {%>
-    <div class="alert alert-success" role="alert">
-      <%= successFlash %> 
-    </div>
-  <% } %> 
+    <% if (errorFlash.length> 0) { %>
+      <div class="alert alert-danger" role="alert">
+        <%= errorFlash %>
+      </div>
+      <% } else if (successFlash.length> 0) {%>
+        <div class="alert alert-success" role="alert">
+          <%= successFlash %>
+        </div>
+        <% } %>
 
-    <div class="container">
-      <div class="row candidate-container">
-        <% candidate.forEach(c=> { %>
-          <div class="col-md-3 my-4">
-            <div class="card" style="width: 18rem;">
-              <img src="http://localhost/photo/candidates/<%= c.photo %>" class="card-img-top">
-              <div class="card-body">
-                <h5 class="card-title">
-                  <%= c.candidate %>
-                </h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                  <%= c.viceCandidate %>
-                </h6>
-                <!-- modal button delete voter -->
-                <form method="post" action="/vote" id="formVoting">
-                <input type="hidden" name="voterID" id="voterID" value="<%= voter._id %>">
-                <input type="hidden" name="candidateID" id="candidateID" value="<%= c._id %>">
-                <input type="hidden" name="signature" id="signature">
-                
-                <input type="button" class="btn btn-danger" onclick="proses()" value="Vote">
-                <!-- <button type="submit" class="btn btn-danger" data-bs-dismiss="modal"
+          <div class="container">
+            <div class="row candidate-container">
+              <% candidate.forEach(c=> { %>
+                <div class="col-md-3 my-4">
+                  <div class="card" style="width: 18rem;">
+                    <img src="http://localhost/photo/candidates/<%= c.photo %>" class="card-img-top">
+                    <div class="card-body">
+                      <h5 class="card-title">
+                        <%= c.candidate %>
+                      </h5>
+                      <h6 class="card-subtitle mb-2 text-muted">
+                        <%= c.viceCandidate %>
+                      </h6>
+                      <!-- modal button delete voter -->
+                      <form method="post" action="/vote" id="formVoting">
+                        <input type="hidden" name="voterID" id="voterID" value="<%= voter._id %>">
+                        <input type="hidden" name="candidateID" id="candidateID">
+                        <input type="hidden" name="signature" id="signature">
+
+                        <input type="button" class="btn btn-danger" onclick="proses('<%= c._id %>')" value="Vote">
+                        <!-- <button type="submit" class="btn btn-danger" data-bs-dismiss="modal"
                     onclick="return confirm(`are you sure?`)">Vote</button> -->
-                </form>
-              </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <% }); %>
             </div>
           </div>
-          <% }); %>
-      </div>
-    </div> 
 
-    <input type="file" name="inputfile" id="inputfile"><br>
-    <pre id="output"></pre>
+          <input type="file" name="inputfile" id="inputfile"><br>
 
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-      crossorigin="anonymous"></script>
-    <script>
-      const inputButton = document.getElementById('inputfile')
-      let privateKey = ''
-    </script>
-    <script src="signature.js"></script>
-    <script src="file.js"></script>
+          <!-- Option 1: Bootstrap Bundle with Popper -->
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+            crossorigin="anonymous"></script>
+          <script>
+            const inputButton = document.getElementById('inputfile')
+            let privateKey = ''
+          </script>
+          <script src="signature.js"></script>
+          <script src="file.js"></script>
 
 </body>
 

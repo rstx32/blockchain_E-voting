@@ -65,6 +65,15 @@ passport.use(
   )
 )
 
+// if voter already voting
+const isVoterVoted = (req, res, next) => {
+  if(isVoted(req.user)){
+    res.redirect('/myvote')
+  }else{
+    next()
+  }
+}
+
 // if voter has not logged in
 const isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
@@ -128,12 +137,16 @@ app.get('/', isLoggedIn, (req, res) => {
 })
 
 // route untuk daftar blockchain
-app.get('/blocks', isLoggedIn, (req, res) => {
-  res.send(getBlocks())
+app.get('/blocks', (req, res) => {
+  const blocks = getBlocks()
+  res.render('blocks', {
+    title: 'blocks',
+    blocks,
+  })
 })
 
 // form vote
-app.get('/vote', isLoggedIn, async (req, res) => {
+app.get('/vote', isLoggedIn, isVoterVoted, async (req, res) => {
   const candidate = await getCandidates()
   const voter = await getVoter(req.user)
   const errorFlash = req.flash('errorMessage')
@@ -162,7 +175,7 @@ app.post('/vote', isLoggedIn, async (req, res) => {
     if (!isVoted(req.body.voterID)) {
       newBlock(req.body)
       req.flash('successMessage', 'voting sukses!')
-      res.redirect('/vote')
+      res.redirect('/myvote')
     } else {
       req.flash('errorMessage', 'anda sudah melakukan voting!')
       res.redirect('/vote')
@@ -177,7 +190,6 @@ app.post('/vote', isLoggedIn, async (req, res) => {
 app.get('/myvote', isLoggedIn, async (req, res) => {
   const voter = await getVoter(req.user)
   const voting = getBlock(req.user)
-  console.log(voting)
   res.render('myvote', {
     title: 'My Vote',
     voter,
@@ -186,8 +198,12 @@ app.get('/myvote', isLoggedIn, async (req, res) => {
 })
 
 // halaman rekapitulasi
-app.get('/recapitulation', isLoggedIn, async (req, res) => {
-  res.send(await getCandidatesRecap())
+app.get('/recapitulation', async (req, res) => {
+  const recap = await getCandidatesRecap()
+  res.render('recapitulation', {
+    title: 'recapitulation',
+    recap,
+  })
 })
 
 // route untuk page not found

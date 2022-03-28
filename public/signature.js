@@ -1,7 +1,8 @@
-async function proses() {
-  const form = document.getElementById('formVoting')
+async function proses(candidate) {
   const signature = document.getElementById('signature')
-  const candidate = document.getElementById('candidateID')
+  const candidateForm = document.getElementById('candidateID')
+  const form = document.getElementById('formVoting')
+  candidateForm.value = candidate
 
   try {
     function str2ab(str) {
@@ -40,7 +41,7 @@ async function proses() {
     }
   
     function getMessageEncoding() {
-      let message = candidate.value
+      let message = candidate
       let enc = new TextEncoder()
       return enc.encode(message)
     }
