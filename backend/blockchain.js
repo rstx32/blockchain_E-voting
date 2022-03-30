@@ -72,10 +72,12 @@ const replaceChain = (newBlockchain) => {
     isBlockchainValid(newBlockchain) &&
     newBlockchain.length > getBlocks().length
   ) {
-    console.log(`replacing current blockchain with receivedd blockchain`)
+    console.log(`replacing current blockchain with received blockchain\n`)
     blockchain = newBlockchain
+  } else if (newBlockchain.length === getBlocks().length) {
+    console.log(`current and received blockchain are the same length\n`)
   } else {
-    console.log(`failed to replace blockchain`)
+    console.log(`failed to replace blockchain\n`)
   }
 }
 
