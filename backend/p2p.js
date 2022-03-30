@@ -37,6 +37,7 @@ net.onMessage((msg) => {
 
 const broadcastChain = (blockchain) => {
   net.broadcast('blockchain', blockchain)
+  console.log(`broadcasting to all nodes`);
 }
 
 export { net, broadcastChain }
