@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import sha265 from 'crypto-js/sha256.js'
 import { getCandidates } from './getAPI.js'
-import e from 'connect-flash'
+import { broadcastChain } from './p2p.js'
 dotenv.config({ path: './backend/config/.env' })
 const diff = parseInt(process.env.DIFFICULTY)
 
@@ -59,11 +59,24 @@ const genesis = new Block(
 )
 
 // inisiasi array of blockchain, dengan block pertama genesis
-const blockchain = [genesis]
+let blockchain = [genesis]
 
 // fungsi untuk menampilkan blockchain
 const getBlocks = () => {
   return blockchain
+}
+
+// replace current blockchain
+const replaceChain = (newBlockchain) => {
+  if (
+    isBlockchainValid(newBlockchain) &&
+    newBlockchain.length > getBlocks().length
+  ) {
+    console.log(`replacing current blockchain with receivedd blockchain`)
+    blockchain = newBlockchain
+  } else {
+    console.log(`failed to replace blockchain`)
+  }
 }
 
 // membuat block baru
@@ -79,12 +92,14 @@ const addBlock = (block) => {
   if (isStructureValid(block) && isBlockValid(latestBlock(), block)) {
     blockchain.push(block)
     console.log(`a new block added! ${block.hash}`)
+    broadcastChain(blockchain)
     return true
   }
   console.log(`block failed!`)
   return false
 }
 
+///// validation zone /////
 // memvalidasi isi tipe data block
 const isStructureValid = (block) => {
   return (
@@ -150,6 +165,7 @@ const isHashMatchDifficulty = (blockHash, difficulty) => {
   const reqDiff = '0'.repeat(difficulty)
   return binaryHash.startsWith(reqDiff)
 }
+///// validation zone /////
 
 // hexadecimal to binary
 const hexToBinary = (s) => {
@@ -204,7 +220,7 @@ const isVoted = (id) => {
   return false
 }
 
-// export detail block
+// export detail block voter
 const getBlock = (id) => {
   return blockchain.find((voter) => voter.data.voterID == id)
 }
@@ -229,28 +245,18 @@ const getCandidatesRecap = async () => {
 const countCandidate = (candidateID) => {
   let tampung = 0
   for (const iterator of blockchain) {
-    if(iterator.data.candidateID === candidateID) tampung++
+    if (iterator.data.candidateID === candidateID) tampung++
   }
   return tampung
 }
 
-// test zone
-const data2 = {
-  voterID: `voter1`,
-  candidateID: '620f5013b3807d21dd567eef',
-  signature:
-    'UkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==',
-}
-newBlock(data2)
-
-const data3 = {
-  voterID: `voter2`,
-  candidateID: '620f5013b3807d21dd567eef',
-  signature:
-    'UkyOXGS1dmBiIaEJjjwgGzhfBhyXaPm/BIrN9Piv16LnW3kjDvX56a0fREFvyJdcZROPpINVVHng9eV2Ei6kDAKh2JJJp4T7vLKiLRNyZWc3LX/t8CcUpSM9QZavHkShRW4IRg38lGGCkGYb9b4XMZtRi8MPEfUv5MjBoyBY4nSpJcnCisRUjlo8pYKSSiqxhjtb4Fp0yEfcl0KFlkDSiVDpO1MRfbh0g+8FdSO0yGGezAJ1fJO7DhrZaJkLu/QA/VSgPJkgXVYkf+EamnCIwP7GrDYIyJKNqwnbsYa4ZkuX4w/msrfyI+GZCA24hNydM6X3ABtxcwO8m9lxNdoTpA==',
-}
-newBlock(data3)
-// end of test zone
-
 // export module
-export { getBlocks, newBlock, isVoted, getBlock, getCandidatesRecap }
+export {
+  getBlocks,
+  replaceChain,
+  newBlock,
+  isVoted,
+  getBlock,
+  getCandidatesRecap,
+  isBlockchainValid,
+}
