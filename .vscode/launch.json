@@ -20,8 +20,8 @@
         {
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "name": "index",
-            "program": "${workspaceFolder}/backend/index.js",
+            "name": "p2p",
+            "program": "${workspaceFolder}/backend/p2p.js",
             "request": "launch",
             "restart": true,
             "runtimeExecutable": "nodemon",
@@ -29,6 +29,6 @@
                 "<node_internals>/**"
             ],
             "type": "pwa-node"
-        }
+        },
     ]
 }
