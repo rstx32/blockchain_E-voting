@@ -5,7 +5,8 @@ import passport from 'passport'
 import LocalStrategy from 'passport-local'
 import flash from 'connect-flash'
 import bcrypt from 'bcryptjs'
-dotenv.config({ path: './backend/config/.env' })
+import { net } from './p2p.js'
+dotenv.config({ path: './config/.env' })
 
 import {
   getBlocks,
@@ -29,7 +30,7 @@ const app = express()
   .use(
     session({
       cookie: { maxAge: 1000 * 60 * 60 },
-      secret: process.env.SECRET,
+      secret: process.env.SECRET_SESSION,
       resave: false,
       saveUninitialized: false,
     })
@@ -64,6 +65,9 @@ passport.use(
     }
   )
 )
+
+// p2p mesh network
+await net.join()
 
 // if voter already voting, redirect to myvote
 const isVoterVoted = (req, res, next) => {
