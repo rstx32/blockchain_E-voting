@@ -212,9 +212,9 @@ app.use((req, res) => {
   res.send('404: page not found')
 })
 
-// menjalankan express
-app.listen(process.env.HTTP_PORT, () => {
+// running express
+const server = app.listen(0, () => {
   console.log(
-    `EvB listening on port : http://localhost:${process.env.HTTP_PORT}`
+    `EvB listening on port : http://localhost:${server.address().port}`
   )
 })
