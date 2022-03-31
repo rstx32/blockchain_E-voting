@@ -27,14 +27,7 @@ const calculateHash = (index, prevHash, timestamp, data, difficulty, nonce) => {
 
 // fungsi untuk menghitung hash (parameter : block)
 const blockCalculateHash = (block) => {
-  return sha265(
-    block.index +
-      block.previousHash +
-      block.timestamp +
-      block.data +
-      block.difficulty +
-      block.nonce
-  ).toString()
+  return calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce)
 }
 
 // fungsi untuk mendapatkan block terakhir
