@@ -134,6 +134,9 @@ const isBlockValid = (prevBlock, newBlock) => {
     console.log('invalid previous hash')
     return false
   } else if (blockCalculateHash(newBlock) !== newBlock.hash) {
+    console.log(blockCalculateHash(newBlock))
+    console.log(newBlock.hash)
+
     console.log(`invalid block hash`)
     return false
   }
