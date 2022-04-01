@@ -37,14 +37,14 @@ const latestBlock = () => {
 
 // fungsi untuk mendapatkan timestamp
 const getTimestamp = () => {
-  return new Date()
+  return new Date().getTime()
 }
 
 // genesis untuk block pertama pada blockchain
 const genesis = new Block(
   0,
   '',
-  new Date(1638105751888),
+  1638105751888,
   'genesis block',
   calculateHash(0, '', 1638105751888, 'genesis block'),
   0,
@@ -100,7 +100,7 @@ const isStructureValid = (block) => {
   return (
     typeof block.index === 'number' &&
     typeof block.previousHash === 'string' &&
-    typeof block.timestamp === 'object' &&
+    typeof block.timestamp === 'number' &&
     typeof block.data === 'object' &&
     typeof block.data.voterID === 'string' &&
     typeof block.data.candidateID === 'string' &&
