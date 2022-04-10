@@ -10,7 +10,7 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center">
-                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="http://localhost/photo/candidates/<%= r.photo %>" alt="...">
+                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="http://localhost:5000/photo/candidates/<%= r.photo %>" alt="...">
                     </div>
                     <div class="text-center">
                         <h3>Count : <%= r.count %> </h3>
@@ -23,8 +23,9 @@
 </div>
 
 <div class="row" style="margin-top: 25px;">
+    <div class="col"></div>
     <!-- Donut Chart -->
-    <div class="col-xl-4 col-lg-5">
+    <div class="col-xl-64 col-lg-5">
         <div class="card shadow mb-4">
             <!-- Card Header - Dropdown -->
             <div class="card-header py-3">
@@ -36,10 +37,11 @@
                     <canvas id="myPieChart"></canvas>
                 </div>
                 <hr>
-                Pemenang sementara adalah <code><div id="winner">x</div></code>
+                Pemenang sementara adalah <b><code><a id="winner">x</a></code></b>
             </div>
         </div>
     </div>
+    <div class="col"></div>
 </div>
 
 
@@ -101,6 +103,23 @@
         },
     });
 
-    let maxObj = objectOfRecap.reduce((max, obj) => (max.count > obj.count) ? max : obj);
-    document.getElementById('winner').innerHTML = maxObj.candidate    
+    let result = objectOfRecap.sort((a, b) => (a.count < b.count) ? 1 : -1)
+
+    let winner = [result[0]]
+    for (let index = 1; index < result.length; index++) {
+        if(result[0].count === result[index].count){
+            winner.push(result[index])
+        }
+    }
+
+    let multiWinner = []
+    for (let index = 0; index < winner.length; index++) {
+        multiWinner.push(winner[index].candidate)
+    }
+
+    if(multiWinner.length > 1){
+        document.getElementById('winner').innerHTML = multiWinner
+    }else{
+        document.getElementById('winner').innerHTML = winner[0].candidate
+    }
 </script>
