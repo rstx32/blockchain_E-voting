@@ -43,10 +43,18 @@ const getTimestamp = () => {
 // genesis untuk block pertama pada blockchain
 const genesis = new Block(
   0,
-  '',
+  '0',
   1638105751888,
-  'genesis block',
-  calculateHash(0, '', 1638105751888, 'genesis block'),
+  {
+    voterID: 'genesis block',
+    candidateID: 'genesis block',
+    signature: 'genesis block',
+  },
+  calculateHash(0, '', 1638105751888, {
+    voterID: 'genesis block',
+    candidateID: 'genesis block',
+    signature: 'genesis block',
+  }),
   0,
   0
 )
