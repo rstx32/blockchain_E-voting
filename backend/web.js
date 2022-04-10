@@ -137,7 +137,7 @@ app.get('/logout', (req, res) => {
 })
 
 // route homepage
-app.get('/', (req, res) => {
+app.get('/', isLoggedIn, (req, res) => {
   const successMessage = req.flash('messageSuccess')
   const user = req.user
 
@@ -168,7 +168,7 @@ function paginator(array, queryPage, queryLimit) {
 }
 
 // route untuk daftar blockchain
-app.get('/blocks', (req, res) => {
+app.get('/blocks', isLoggedIn, (req, res) => {
   // if query is empty, then add default query
   if (Object.keys(req.query).length === 0) {
     req.query = {
@@ -261,7 +261,7 @@ app.get('/myvote', isLoggedIn, async (req, res) => {
 })
 
 // halaman rekapitulasi
-app.get('/recap', async (req, res) => {
+app.get('/recap', isLoggedIn, async (req, res) => {
   const recap = await getCandidatesRecap()
   const user = req.user
 
@@ -274,7 +274,7 @@ app.get('/recap', async (req, res) => {
 })
 
 // list nodes
-app.get('/nodes', (req, res) => {
+app.get('/nodes', isLoggedIn, (req, res) => {
   const user = req.user
   const nodes = net.nodes
   const thisNode = net.networkId
