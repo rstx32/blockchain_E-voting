@@ -6,6 +6,7 @@ import LocalStrategy from 'passport-local'
 import flash from 'connect-flash'
 import bcrypt from 'bcryptjs'
 import { net } from './p2p.js'
+import expressLayouts from 'express-ejs-layouts'
 dotenv.config({ path: './config/.env' })
 
 import {
@@ -26,6 +27,7 @@ import { verify, importRsaKey } from './verification.js'
 const app = express()
   .use(urlencoded({ extended: true }))
   .set('view engine', 'ejs')
+  .use(expressLayouts)
   .use(express.static('public'))
   .use(
     session({
@@ -72,6 +74,7 @@ await net.join()
 // if voter already voting, redirect to myvote
 const isVoterVoted = (req, res, next) => {
   if (isVoted(req.user)) {
+    req.flash('errorMessage', 'You were already vote!')
     res.redirect('/myvote')
   } else {
     next()
@@ -83,12 +86,13 @@ const isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     next()
   } else {
-    req.flash('messageFailure', 'you must logged in first!')
+    req.flash('messageFailure', 'You must logged in first!')
     res.redirect('login')
   }
 }
 
 // if voter already logged in, redirect to homepage
+// for login page purpose only
 const hasLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     res.redirect('/')
@@ -102,6 +106,7 @@ app.get('/login', hasLoggedIn, async (req, res) => {
   const errorMessage = req.flash('messageFailure')
   const successMessage = req.flash('messageSuccess')
   res.render('auth/login', {
+    layout: 'auth/login',
     errors: errorMessage,
     success: successMessage,
   })
@@ -115,10 +120,10 @@ app.post(
       type: 'messageFailure',
       message: 'wrong id or password!',
     },
-    successRedirect: '/vote',
+    successRedirect: '/',
     successFlash: {
       type: 'messageSuccess',
-      message: 'Welcome to EvB dashboard',
+      message: 'Welcome to EvB dashboard!',
     },
   }),
   (req, res) => {}
@@ -132,20 +137,68 @@ app.get('/logout', (req, res) => {
 })
 
 // route homepage
-app.get('/', isLoggedIn, (req, res) => {
+app.get('/', (req, res) => {
   const successMessage = req.flash('messageSuccess')
+  const user = req.user
+
   res.render('homepage', {
-    title: 'homepage EvB',
+    layout: 'layouts/main-layout',
+    title: 'Homepage',
+    user,
     successMessage,
   })
 })
 
+function paginator(array, queryPage, queryLimit) {
+  let page = Number(queryPage),
+    limit = Number(queryLimit),
+    offset = (page - 1) * limit,
+    paginatedItems = array.slice(offset).slice(0, queryLimit),
+    totalPages = Math.ceil(array.length / limit)
+
+  return {
+    page: page,
+    limit: limit,
+    hasPrevPage: page - 1 ? true : false,
+    hasNextPage: totalPages > page ? true : false,
+    total: array.length,
+    totalPages: totalPages,
+    data: paginatedItems,
+  }
+}
+
 // route untuk daftar blockchain
 app.get('/blocks', (req, res) => {
+  // if query is empty, then add default query
+  if (Object.keys(req.query).length === 0) {
+    req.query = {
+      limit: 5,
+      page: 1,
+    }
+  }
+
   const blocks = getBlocks()
+  const result = paginator(blocks, req.query.page, req.query.limit)
+  const user = req.user
+
   res.render('blocks', {
-    title: 'blocks',
-    blocks,
+    layout: 'layouts/main-layout',
+    title: 'Blocks',
+    user,
+    blocks: result,
+  })
+})
+
+// profile page
+app.get('/profile', isLoggedIn, async (req, res) => {
+  const voter = await getVoter(req.user)
+  const user = req.user
+
+  res.render('profile', {
+    layout: 'layouts/main-layout',
+    title: 'My Profile',
+    user,
+    voter,
   })
 })
 
@@ -153,10 +206,13 @@ app.get('/blocks', (req, res) => {
 app.get('/vote', isLoggedIn, isVoterVoted, async (req, res) => {
   const candidate = await getCandidates()
   const voter = await getVoter(req.user)
+  const user = req.user
 
-  res.render('formVoting', {
+  res.render('vote', {
+    layout: 'layouts/main-layout',
+    title: 'Vote Now!',
+    user,
     candidate,
-    title: 'form vote',
     voter,
   })
 })
@@ -189,24 +245,46 @@ app.post('/vote', isLoggedIn, async (req, res) => {
 
 // halaman my vote
 app.get('/myvote', isLoggedIn, async (req, res) => {
-  const voter = await getVoter(req.user)
   const voting = getBlock(req.user)
   const successFlash = req.flash('successMessage')
+  const errorFlash = req.flash('errorMessage')
+  const user = req.user
 
   res.render('myvote', {
+    layout: 'layouts/main-layout',
     title: 'My Vote',
-    voter,
+    user,
     voting,
     successFlash,
+    errorFlash,
   })
 })
 
 // halaman rekapitulasi
-app.get('/recapitulation', async (req, res) => {
+app.get('/recap', async (req, res) => {
   const recap = await getCandidatesRecap()
-  res.render('recapitulation', {
-    title: 'recapitulation',
+  const user = req.user
+
+  res.render('recap', {
+    layout: 'layouts/main-layout',
+    title: 'Recapitulation',
+    user,
     recap,
+  })
+})
+
+// list nodes
+app.get('/nodes', (req, res) => {
+  const user = req.user
+  const nodes = net.nodes
+  const thisNode = net.networkId
+
+  res.render('nodes', {
+    layout: 'layouts/main-layout',
+    title: 'Node List',
+    user,
+    nodes,
+    thisNode,
   })
 })
 
@@ -217,8 +295,6 @@ app.use((req, res) => {
 })
 
 // running express
-const server = app.listen(0, () => {
-  console.log(
-    `EvB listening on port : http://localhost:${server.address().port}`
-  )
+app.listen(8080, () => {
+  console.log(`EvB listening on port : http://localhost:8080/`)
 })
