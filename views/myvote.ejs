@@ -11,19 +11,19 @@
         </div>
     </div>
 <% } else { %>
-    <% if (successFlash.length>0) { %>
+    <% if (flashMessage.successMessage.length>0) { %>
         <!-- flash message -->
         <div class="card mb-4 py-3 border-left-success">
             <div class="card-body">
-                <%= successFlash %> 
+                <%= flashMessage.successMessage %> 
             </div>
         </div>
     <% } %>
-    <% if (errorFlash.length>0) { %>
+    <% if (flashMessage.errorMessage.length>0) { %>
         <!-- flash message -->
         <div class="card mb-4 py-3 border-left-danger">
             <div class="card-body">
-                <%= errorFlash %> 
+                <%= flashMessage.errorMessage %> 
             </div>
         </div>
     <% } %>

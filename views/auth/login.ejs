@@ -70,14 +70,14 @@
             <img class="mb-4" src="/EvB.png" alt="" width="120" height="120">
             <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
 
-            <% if (errors.length > 0) { %>
+            <% if (flashMessage.errorMessage.length > 0) { %>
                 <div class="alert alert-danger" role="alert" id="message">
-                    <%= errors %>
+                    <%= flashMessage.errorMessage %>
                 </div>
             <% } %>
-            <% if (success.length > 0) { %>
+            <% if (flashMessage.successMessage.length > 0) { %>
                 <div class="alert alert-success" role="alert" id="message">
-                    <%= success %>
+                    <%= flashMessage.successMessage %>
                 </div>
             <% } %>
 
