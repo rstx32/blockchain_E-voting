@@ -105,10 +105,10 @@ const hasLoggedIn = (req, res, next) => {
 app.get('/login', hasLoggedIn, async (req, res) => {
   const errorMessage = req.flash('messageFailure')
   const successMessage = req.flash('messageSuccess')
+  
   res.render('auth/login', {
     layout: 'auth/login',
-    errors: errorMessage,
-    success: successMessage,
+    flashMessage: {errorMessage,successMessage},
   })
 })
 
@@ -246,8 +246,8 @@ app.post('/vote', isLoggedIn, async (req, res) => {
 // halaman my vote
 app.get('/myvote', isLoggedIn, async (req, res) => {
   const voting = getBlock(req.user)
-  const successFlash = req.flash('successMessage')
-  const errorFlash = req.flash('errorMessage')
+  const successMessage = req.flash('successMessage')
+  const errorMessage = req.flash('errorMessage')
   const user = req.user
 
   res.render('myvote', {
@@ -255,8 +255,7 @@ app.get('/myvote', isLoggedIn, async (req, res) => {
     title: 'My Vote',
     user,
     voting,
-    successFlash,
-    errorFlash,
+    flashMessage: {successMessage, errorMessage}
   })
 })
 
@@ -291,7 +290,10 @@ app.get('/nodes', isLoggedIn, (req, res) => {
 // route untuk page not found
 app.use((req, res) => {
   res.status(404)
-  res.send('404: page not found')
+  res.render('404', {
+    layout: '404',
+    title: '404 : page not found'
+  })
 })
 
 // running express
