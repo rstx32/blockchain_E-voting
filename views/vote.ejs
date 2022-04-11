@@ -10,7 +10,7 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center">
-                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="http://localhost:5000/photo/candidates/<%= c.photo %>" alt="...">
+                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="http://<%= url %>/photo/candidates/<%= c.photo %>" alt="...">
                     </div>
                     <p>Add some quality, svg illustrations to your project courtesy of <a
                             target="_blank" rel="nofollow" href="https://undraw.co/">unDraw</a>, a
@@ -67,17 +67,19 @@
 </div>
 
 <div class="row" style="margin-top: 30px;">
-    <div class="col-lg-3">
-        <!-- card candidate -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Upload Private Key</h6>
-            </div>
-            <div class="card-body">
-                <input type="file" name="inputfile" id="inputfile"><br>
+    <div class="col"></div>
+        <div class="col-lg-3">
+            <!-- card candidate -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Upload Private Key</h6>
+                </div>
+                <div class="card-body">
+                    <input type="file" name="inputfile" id="inputfile"><br>
+                </div>
             </div>
         </div>
-    </div>
+    <div class="col"></div>
 </div>
 
 <script>

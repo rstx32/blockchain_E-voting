@@ -193,12 +193,14 @@ app.get('/blocks', isLoggedIn, (req, res) => {
 app.get('/profile', isLoggedIn, async (req, res) => {
   const voter = await getVoter(req.user)
   const user = req.user
+  const url = process.env.API_URL
 
   res.render('profile', {
     layout: 'layouts/main-layout',
     title: 'My Profile',
     user,
     voter,
+    url,
   })
 })
 
@@ -207,6 +209,7 @@ app.get('/vote', isLoggedIn, isVoterVoted, async (req, res) => {
   const candidate = await getCandidates()
   const voter = await getVoter(req.user)
   const user = req.user
+  const url = process.env.API_URL
 
   res.render('vote', {
     layout: 'layouts/main-layout',
@@ -214,6 +217,7 @@ app.get('/vote', isLoggedIn, isVoterVoted, async (req, res) => {
     user,
     candidate,
     voter,
+    url,
   })
 })
 
@@ -263,12 +267,14 @@ app.get('/myvote', isLoggedIn, async (req, res) => {
 app.get('/recap', isLoggedIn, async (req, res) => {
   const recap = await getCandidatesRecap()
   const user = req.user
+  const url = process.env.API_URL
 
   res.render('recap', {
     layout: 'layouts/main-layout',
     title: 'Recapitulation',
     user,
     recap,
+    url,
   })
 })
 
