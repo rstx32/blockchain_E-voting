@@ -1,11 +1,10 @@
 {
-  "name": "evb",
+  "name": "evb-node",
   "version": "1.0.0",
   "description": "blockchain berbasis e-voting",
   "main": "backend/web.js",
   "scripts": {
-    "start": "node backend/web.js",
-    "nodemon": "nodemon web.js"
+    "start": "node backend/web.js"
   },
   "keywords": [
     "blockchain",
