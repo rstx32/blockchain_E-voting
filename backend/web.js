@@ -138,15 +138,7 @@ app.get('/logout', (req, res) => {
 
 // route homepage
 app.get('/', isLoggedIn, (req, res) => {
-  const successMessage = req.flash('messageSuccess')
-  const user = req.user
-
-  res.render('homepage', {
-    layout: 'layouts/main-layout',
-    title: 'Homepage',
-    user,
-    successMessage,
-  })
+  res.redirect('/profile')
 })
 
 function paginator(array, queryPage, queryLimit) {
@@ -193,14 +185,12 @@ app.get('/blocks', isLoggedIn, (req, res) => {
 app.get('/profile', isLoggedIn, async (req, res) => {
   const voter = await getVoter(req.user)
   const user = req.user
-  const url = process.env.API_URL
 
   res.render('profile', {
     layout: 'layouts/main-layout',
     title: 'My Profile',
     user,
     voter,
-    url,
   })
 })
 
@@ -265,6 +255,7 @@ app.get('/myvote', isLoggedIn, async (req, res) => {
 
 // halaman rekapitulasi
 app.get('/recap', isLoggedIn, async (req, res) => {
+
   const recap = await getCandidatesRecap()
   const user = req.user
   const url = process.env.API_URL
@@ -303,6 +294,6 @@ app.use((req, res) => {
 })
 
 // running express
-app.listen(8080, () => {
-  console.log(`EvB listening on port : http://localhost:8080/`)
+app.listen(process.env.HTTP_PORT, () => {
+  console.log(`EvB listening on port : http://localhost:${process.env.HTTP_PORT}/`)
 })
