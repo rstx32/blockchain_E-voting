@@ -86,7 +86,6 @@ const isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     next()
   } else {
-    req.flash('messageFailure', 'You must logged in first!')
     res.redirect('login')
   }
 }
@@ -121,10 +120,6 @@ app.post(
       message: 'wrong id or password!',
     },
     successRedirect: '/',
-    successFlash: {
-      type: 'messageSuccess',
-      message: 'Welcome to EvB dashboard!',
-    },
   }),
   (req, res) => {}
 )
@@ -199,7 +194,6 @@ app.get('/vote', isLoggedIn, isVoterVoted, async (req, res) => {
   const candidate = await getCandidates()
   const voter = await getVoter(req.user)
   const user = req.user
-  const url = process.env.API_URL
 
   res.render('vote', {
     layout: 'layouts/main-layout',
@@ -207,7 +201,6 @@ app.get('/vote', isLoggedIn, isVoterVoted, async (req, res) => {
     user,
     candidate,
     voter,
-    url,
   })
 })
 
@@ -258,14 +251,12 @@ app.get('/recap', isLoggedIn, async (req, res) => {
 
   const recap = await getCandidatesRecap()
   const user = req.user
-  const url = process.env.API_URL
 
   res.render('recap', {
     layout: 'layouts/main-layout',
     title: 'Recapitulation',
     user,
     recap,
-    url,
   })
 })
 
