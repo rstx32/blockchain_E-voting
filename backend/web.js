@@ -248,7 +248,6 @@ app.get('/myvote', isLoggedIn, async (req, res) => {
 
 // halaman rekapitulasi
 app.get('/recap', isLoggedIn, async (req, res) => {
-
   const recap = await getCandidatesRecap()
   const user = req.user
 
