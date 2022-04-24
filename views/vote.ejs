@@ -96,7 +96,7 @@
         let filenameShould = `${voter}-private_key.pem`
         
         if (filename !== filenameShould) {
-            window.alert('nama file tidak sesuai dengan voter! => ' + filenameShould)
+            window.alert('filename is not match to voter ID! => ' + filenameShould)
         } else {
             var fr = new FileReader()
             fr.onload = function () {
