@@ -218,14 +218,14 @@ app.post('/vote', isLoggedIn, async (req, res) => {
   if (isVerified) {
     if (!isVoted(req.body.voterID)) {
       newBlock(req.body)
-      req.flash('successMessage', 'voting sukses!')
+      req.flash('successMessage', 'voting success!')
       res.redirect('/myvote')
     } else {
-      req.flash('errorMessage', 'anda sudah melakukan voting!')
+      req.flash('errorMessage', 'you were already vote!')
       res.redirect('/vote')
     }
   } else {
-    req.flash('errorMessage', 'voting gagal!')
+    req.flash('errorMessage', 'voting error!')
     res.redirect('/vote')
   }
 })
