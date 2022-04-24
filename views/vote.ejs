@@ -12,10 +12,8 @@
                     <div class="text-center">
                         <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="http://<%= process.env.PUBLIC_URL %>/photo/candidates/<%= c.photo %>" alt="...">
                     </div>
-                    <p>Add some quality, svg illustrations to your project courtesy of <a
-                            target="_blank" rel="nofollow" href="https://undraw.co/">unDraw</a>, a
-                        constantly updated collection of beautiful svg images that you can use
-                        completely free and without attribution!</p>
+                    <p><b><%= c.candidate %> </b></p>
+                    <p><b><%= c.viceCandidate %> </b></p>
                     <!-- Button trigger modal -->
                     <button class="btn btn-success btn-icon-split" data-toggle="modal" data-target="#confirmVote-<%= c._id %>" name="confirmButton">
                         <span class="icon text-white-50">
