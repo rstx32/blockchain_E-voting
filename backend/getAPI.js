@@ -1,25 +1,53 @@
 import fetch from 'node-fetch'
 import dotenv from 'dotenv'
-dotenv.config({ path: './config/.env' })
+import jsonwebtoken from 'jsonwebtoken'
+dotenv.config({ path: 'backend/config/.env' })
 
-const getCandidates = async (req, res) => {
-  const candidates = await fetch(`http://${process.env.API_URL}/getcandidates`)
+// generate JWT for API Auth
+const token = jsonwebtoken.sign(
+  { username: process.env.NODE_ID },
+  process.env.TOKEN,
+  { expiresIn: '7d' }
+)
+console.log(token)
+
+// get voter (full)
+const getVoter = async (nim) => {
+  const voter = await fetch(`http://${process.env.API_URL}/voter?nim=${nim}`, {
+    method: 'get',
+    headers: {
+      token: token,
+    },
+  })
+  return voter.json()
+}
+
+// get voter password
+const getVoterPasswd = async (nim) => {
+  const voter = await getVoter(nim)
+  const password = voter.password
+  return password
+}
+
+// get voter public key
+const getVoterPubKey = async (nim) => {
+  const voter = await getVoter(nim)
+  const public_key = voter.public_key
+  return public_key
+}
+
+// get all candidates
+const getCandidates = async () => {
+  const candidates = await fetch(
+    `http://${process.env.API_URL}/export/candidate`,
+    {
+      method: 'get',
+      headers: {
+        token: token,
+      },
+    }
+  )
   return await candidates.json()
-}
-
-const getVoterPasswd = async (id) => {
-  const voter = await fetch(`http://${process.env.API_URL}/voter/passwd/${id}`)
-  return await voter.json()
-}
-
-const getVoterPubKey = async (id) => {
-  const voter = await fetch(`http://${process.env.API_URL}/voter/pubkey/${id}`)
-  return await voter.json()
-}
-
-const getVoter = async (id) => {
-  const voter = await fetch(`http://${process.env.API_URL}/voter/${id}`)
-  return await voter.json()
 }
 
 export { getCandidates, getVoterPasswd, getVoterPubKey, getVoter }

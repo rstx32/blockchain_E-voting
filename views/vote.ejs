@@ -80,6 +80,8 @@
     <div class="col"></div>
 </div>
 
+<input type="hidden" id="voterNIM" value="<%= user %>">
+
 <script>
     let inputButton = document.getElementById('inputfile')
     let privateKey = ''
@@ -89,7 +91,7 @@
     }
     
     inputButton.addEventListener('change', function () {
-        let voter = document.getElementById('voterID').value
+        let voter = document.getElementById('voterNIM').value
         let filename = this.files[0].name
         let filenameShould = `${voter}-private_key.pem`
         

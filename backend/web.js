@@ -33,8 +33,8 @@ const app = express()
     session({
       cookie: { maxAge: 1000 * 60 * 60 },
       secret: process.env.SECRET_SESSION,
-      resave: false,
-      saveUninitialized: false,
+      resave: true,
+      saveUninitialized: true,
     })
   )
   .use(passport.initialize())
@@ -42,7 +42,7 @@ const app = express()
   .use(flash())
 
 passport.serializeUser((user, done) => {
-  done(null, user._id)
+  done(null, user)
 })
 passport.deserializeUser((user, done) => {
   done(null, user)
@@ -53,18 +53,18 @@ passport.use(
   'local-login',
   new LocalStrategy(
     {
-      usernameField: 'id',
+      usernameField: 'nim',
       passwordField: 'password',
     },
-    async (id, password, done) => {
-      const voter = await getVoterPasswd(id)
-      if(voter==='has not set yet'){
+    async (nim, password, done) => {
+      const voterPassword = await getVoterPasswd(nim)
+      if (voterPassword === 'has not set yet') {
         return done(null, false)
       }
-      
-      const isMatch = bcrypt.compareSync(password, voter.password)
+
+      const isMatch = bcrypt.compareSync(password, voterPassword)
       if (isMatch) {
-        return done(null, voter)
+        return done(null, nim)
       } else {
         return done(null, false)
       }
@@ -76,8 +76,9 @@ passport.use(
 await net.join()
 
 // if voter already voting, redirect to myvote
-const isVoterVoted = (req, res, next) => {
-  if (isVoted(req.user)) {
+const isVoterVoted = async (req, res, next) => {
+  const voter = await getVoter(req.user)
+  if (isVoted(voter._id)) {
     req.flash('errorMessage', 'You were already vote!')
     res.redirect('/myvote')
   } else {
@@ -108,10 +109,10 @@ const hasLoggedIn = (req, res, next) => {
 app.get('/login', hasLoggedIn, async (req, res) => {
   const errorMessage = req.flash('messageFailure')
   const successMessage = req.flash('messageSuccess')
-  
+
   res.render('auth/login', {
     layout: 'auth/login',
-    flashMessage: {errorMessage,successMessage},
+    flashMessage: { errorMessage, successMessage },
   })
 })
 
@@ -121,7 +122,7 @@ app.post(
     failureRedirect: '/login',
     failureFlash: {
       type: 'messageFailure',
-      message: 'wrong id or password!',
+      message: 'wrong nim or password!',
     },
     successRedirect: '/',
   }),
@@ -136,7 +137,7 @@ app.get('/logout', (req, res) => {
 })
 
 // route homepage
-app.get('/', isLoggedIn, (req, res) => {
+app.get('/', (req, res) => {
   res.redirect('/profile')
 })
 
@@ -213,12 +214,13 @@ app.get('/vote', isLoggedIn, isVoterVoted, async (req, res) => {
 // cek apakah voter sudah melakukan voting
 app.post('/vote', isLoggedIn, async (req, res) => {
   const voterPubkey = await getVoterPubKey(req.user)
-  const pubkey = await importRsaKey(voterPubkey.public_key)
+  const pubkey = await importRsaKey(voterPubkey)
   const isVerified = await verify(
     pubkey,
     req.body.signature,
     req.body.candidateID
   )
+
   if (isVerified) {
     if (!isVoted(req.body.voterID)) {
       newBlock(req.body)
@@ -236,7 +238,8 @@ app.post('/vote', isLoggedIn, async (req, res) => {
 
 // halaman my vote
 app.get('/myvote', isLoggedIn, async (req, res) => {
-  const voting = getBlock(req.user)
+  const voter = await getVoter(req.user)
+  const voting = getBlock(voter._id)
   const successMessage = req.flash('successMessage')
   const errorMessage = req.flash('errorMessage')
   const user = req.user
@@ -246,7 +249,7 @@ app.get('/myvote', isLoggedIn, async (req, res) => {
     title: 'My Vote',
     user,
     voting,
-    flashMessage: {successMessage, errorMessage}
+    flashMessage: { successMessage, errorMessage },
   })
 })
 
@@ -283,11 +286,13 @@ app.use((req, res) => {
   res.status(404)
   res.render('404', {
     layout: '404',
-    title: '404 : page not found'
+    title: '404 : page not found',
   })
 })
 
 // running express
 app.listen(process.env.HTTP_PORT, () => {
-  console.log(`EvB listening on port : http://localhost:${process.env.HTTP_PORT}/`)
+  console.log(
+    `EvB listening on port : http://localhost:${process.env.HTTP_PORT}/`
+  )
 })

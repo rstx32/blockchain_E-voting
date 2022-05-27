@@ -27,7 +27,14 @@ const calculateHash = (index, prevHash, timestamp, data, difficulty, nonce) => {
 
 // fungsi untuk menghitung hash (parameter : block)
 const blockCalculateHash = (block) => {
-  return calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce)
+  return calculateHash(
+    block.index,
+    block.previousHash,
+    block.timestamp,
+    block.data,
+    block.difficulty,
+    block.nonce
+  )
 }
 
 // fungsi untuk mendapatkan block terakhir
@@ -96,6 +103,7 @@ const addBlock = (block) => {
     blockchain.push(block)
     console.log(`a new block added! ${block.hash}`)
     broadcastChain(blockchain)
+
     return true
   }
   console.log(`block failed!`)
@@ -228,7 +236,12 @@ const isVoted = (id) => {
 
 // export detail block voter
 const getBlock = (id) => {
-  return blockchain.find((voter) => voter.data.voterID == id)
+  // return blockchain.find((block) => block.data.voterID === id)
+  for (let index = 0; index < blockchain.length; index++) {
+    if(blockchain[index].data.voterID === id){
+      return blockchain[index]
+    }
+  }
 }
 
 // export candidate vote

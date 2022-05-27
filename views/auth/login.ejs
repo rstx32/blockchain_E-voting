@@ -82,8 +82,8 @@
             <% } %>
 
             <div class="input-group mb-3 form-floating">
-                <input name="id" type="text" class="form-control" id="id" placeholder="ID">
-                <label for="floatingInput">ID</label>
+                <input name="nim" type="text" class="form-control" id="nim" placeholder="NIM">
+                <label for="floatingInput">NIM</label>
                 <button class="btn btn-success" type="button" id="paste">Paste</button>
             </div>
             <div class="form-floating">
@@ -98,11 +98,11 @@
     
     <script src="assets/bootstrap/bootstrap.min.js"></script>
     <script>
-        var id = document.getElementById("id");
+        var nim = document.getElementById("nim");
         var passwd = document.getElementById("password")
         var paste = document.getElementById("paste")
 
-        id.onkeypress = function(){
+        nim.onkeypress = function(){
             document.getElementById("message").style.display = "none";
         }
         passwd.onkeypress = function(){
@@ -110,9 +110,9 @@
         }
 
         paste.addEventListener('click', async (event) => {
-            id.value = '';
+            nim.value = '';
             const data = await navigator.clipboard.readText()
-            id.value = data
+            nim.value = data
         })
     </script>
 </body>
