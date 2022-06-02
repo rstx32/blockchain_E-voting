@@ -291,7 +291,7 @@ app.use((req, res) => {
 })
 
 // running express
-app.listen(process.env.HTTP_PORT, () => {
+app.listen(process.env.HTTP_PORT || 80, () => {
   console.log(
     `EvB listening on port : http://localhost:${process.env.HTTP_PORT}/`
   )
