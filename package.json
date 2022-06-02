@@ -4,7 +4,8 @@
   "description": "blockchain berbasis e-voting",
   "main": "backend/web.js",
   "scripts": {
-    "start": "node backend/web.js"
+    "start": "node backend/web.js",
+    "dev": "HTTP_PORT=5002 nodemon ./backend/web.js"
   },
   "keywords": [
     "blockchain",
