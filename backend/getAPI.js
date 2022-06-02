@@ -6,7 +6,7 @@ dotenv.config({ path: 'backend/config/.env' })
 // generate JWT for API Auth
 const token = jsonwebtoken.sign(
   { username: process.env.NODE_ID },
-  process.env.TOKEN,
+  process.env.JWT,
   { expiresIn: '7d' }
 )
 console.log(token)
