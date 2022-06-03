@@ -9,7 +9,6 @@ const token = jsonwebtoken.sign(
   process.env.JWT,
   { expiresIn: '7d' }
 )
-console.log(token)
 
 // get voter (full)
 const getVoter = async (nim) => {
