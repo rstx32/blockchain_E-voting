@@ -58,10 +58,10 @@ passport.use(
     },
     async (nim, password, done) => {
       const voterPassword = await getVoterPasswd(nim)
-      if (voterPassword === 'has not set yet') {
+      if (voterPassword === null) {
         return done(null, false)
       }
-
+      
       const isMatch = bcrypt.compareSync(password, voterPassword)
       if (isMatch) {
         return done(null, nim)
