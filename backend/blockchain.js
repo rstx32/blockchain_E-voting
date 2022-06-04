@@ -89,6 +89,10 @@ const replaceChain = (newBlockchain) => {
   }
 }
 
+const forceReplaceChain = (newBlockchain) => {
+  blockchain = newBlockchain
+}
+
 // membuat block baru
 const newBlock = (data) => {
   const newIndex = latestBlock().index + 1
@@ -238,7 +242,7 @@ const isVoted = (id) => {
 const getBlock = (id) => {
   // return blockchain.find((block) => block.data.voterID === id)
   for (let index = 0; index < blockchain.length; index++) {
-    if(blockchain[index].data.voterID === id){
+    if (blockchain[index].data.voterID === id) {
       return blockchain[index]
     }
   }
@@ -278,4 +282,26 @@ export {
   getBlock,
   getCandidatesRecap,
   isBlockchainValid,
+  forceReplaceChain,
 }
+
+// const prevBlock = blockchain[0].hash
+// const contoh = new Block(
+//   1,
+//   prevBlock,
+//   1654298449,
+//   {
+//     voterID: 'contoh block',
+//     candidateID: 'contoh block',
+//     signature: 'contoh block',
+//   },
+//   calculateHash(0, prevBlock, 1654298449, {
+//     voterID: 'contoh block',
+//     candidateID: 'contoh block',
+//     signature: 'contoh block',
+//   }),
+//   5,
+//   78
+// )
+// blockchain.push(contoh)
+// blockchain.pop()
