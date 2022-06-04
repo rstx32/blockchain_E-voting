@@ -1,9 +1,14 @@
 import { Network, AnonymousAuth } from 'ataraxia'
 import { TCPTransport, TCPPeerMDNSDiscovery } from 'ataraxia-tcp'
-import { getBlocks, replaceChain, isBlockchainValid } from './blockchain.js'
+import {
+  getBlocks,
+  replaceChain,
+  isBlockchainValid,
+  forceReplaceChain,
+} from './blockchain.js'
 
 const net = new Network({
-  name: 'ataraxia-test',
+  name: 'evb-node',
   transports: [
     new TCPTransport({
       discovery: new TCPPeerMDNSDiscovery(),
@@ -26,18 +31,24 @@ net.onNodeUnavailable((node) => {
 })
 
 net.onMessage((msg) => {
-  const temp = [msg]
-  if (isBlockchainValid(temp)) {
-    console.log(`received valid ${msg.type} from ${msg.source.id}`)
-    replaceChain(msg.data)
+  if (msg.type === 'blockchain reject') {
+    console.log(`blockchain rejected from ${msg.source.id}`)
+    console.log(`replacing current blockchain with valid blockchain`)
+    forceReplaceChain(msg.data)
   } else {
-    console.log(`received invalid ${msg.type} from ${msg.source.id}`)
+    if (isBlockchainValid(msg.data)) {
+      console.log(`received valid ${msg.type} from ${msg.source.id}`)
+      replaceChain(msg.data)
+    } else {
+      console.log(`received invalid ${msg.type} from ${msg.source.id}`)
+      msg.source.send('blockchain reject', getBlocks())
+    }
   }
 })
 
 const broadcastChain = (blockchain) => {
   net.broadcast('blockchain', blockchain)
-  console.log(`broadcasting to all nodes`);
+  console.log(`broadcasting to all nodes`)
 }
 
 export { net, broadcastChain }
