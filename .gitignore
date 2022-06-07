@@ -3,3 +3,4 @@ node_modules
 .dockerignore
 Dockerfile
 backend/config/.env
+**/.DS_Store
