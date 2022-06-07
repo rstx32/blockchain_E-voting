@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 import sha265 from 'crypto-js/sha256.js'
 import { getCandidates } from './getAPI.js'
 import { broadcastChain } from './p2p.js'
+import {io} from './web.js'
 dotenv.config({ path: './backend/config/.env' })
 const diff = parseInt(process.env.DIFFICULTY)
 
@@ -75,13 +76,14 @@ const getBlocks = () => {
 }
 
 // replace current blockchain
-const replaceChain = (newBlockchain) => {
+const replaceChain = async (newBlockchain) => {
   if (
     isBlockchainValid(newBlockchain) &&
     newBlockchain.length > getBlocks().length
   ) {
     console.log(`replacing current blockchain with received blockchain\n`)
     blockchain = newBlockchain
+    io.sockets.emit('broadcast', await getCandidatesRecap())
   } else if (newBlockchain.length === getBlocks().length) {
     console.log(`current and received blockchain are the same length\n`)
   } else {
@@ -89,8 +91,9 @@ const replaceChain = (newBlockchain) => {
   }
 }
 
-const forceReplaceChain = (newBlockchain) => {
+const forceReplaceChain = async (newBlockchain) => {
   blockchain = newBlockchain
+  io.sockets.emit('broadcast', await getCandidatesRecap())
 }
 
 // membuat block baru
@@ -102,11 +105,12 @@ const newBlock = (data) => {
 }
 
 // menambahkan block ke dalam blockchain
-const addBlock = (block) => {
+const addBlock = async (block) => {
   if (isStructureValid(block) && isBlockValid(latestBlock(), block)) {
     blockchain.push(block)
     console.log(`a new block added! ${block.hash}`)
     broadcastChain(blockchain)
+    io.sockets.emit('broadcast', await getCandidatesRecap())
 
     return true
   }

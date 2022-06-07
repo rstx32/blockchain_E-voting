@@ -215,7 +215,6 @@ app.post('/vote', isLoggedIn, async (req, res) => {
 		if (!isVoted(req.body.voterID)) {
 			newBlock(req.body)
 			req.flash('successMessage', 'voting success!')
-			io.sockets.emit('broadcast', await getCandidatesRecap())
 			res.redirect('/myvote')
 		} else {
 			req.flash('errorMessage', 'you were already vote!')
@@ -281,17 +280,9 @@ app.use((req, res) => {
 	})
 })
 
-// socket.io
-io.on('connection', (socket) => {
-	console.log('a user opened recapitulation')
-
-	socket.on('disconnect', () => {
-		console.log('a user leave recapitulation')
-	})
-})
-// end socket.io
-
 // running server
 httpServer.listen(process.env.HTTP_PORT, () => {
 	console.log(`EvB-node listening on port : http://localhost:${process.env.HTTP_PORT}/`)
 })
+
+export {io}
