@@ -39,7 +39,7 @@
                     <canvas id="myPieChart"></canvas>
                 </div>
                 <hr>
-                Current Winner is 
+                Current Leader is 
                 <h4>
                     <b>
                         <code>
@@ -140,7 +140,7 @@
         }
     
         if(multiWinner.length > 1){
-            document.getElementById('winner').innerHTML = "Equal"
+            document.getElementById('winner').innerHTML = multiWinner + " <i>(equal)</i>"
         }else{
             document.getElementById('winner').innerHTML = winner[0].candidate
         }
