@@ -39,7 +39,16 @@
                     <canvas id="myPieChart"></canvas>
                 </div>
                 <hr>
-                Pemenang sementara adalah <b><code><a id="winner">x</a></code></b>
+                Current Winner is 
+                <h4>
+                    <b>
+                        <code>
+                            <a id="winner">
+                                x
+                            </a>
+                        </code>
+                    </b>
+                </h4>
             </div>
         </div>
     </div>
@@ -131,7 +140,7 @@
         }
     
         if(multiWinner.length > 1){
-            document.getElementById('winner').innerHTML = multiWinner
+            document.getElementById('winner').innerHTML = "Equal"
         }else{
             document.getElementById('winner').innerHTML = winner[0].candidate
         }
