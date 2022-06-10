@@ -98,7 +98,7 @@
                                         <canvas id="myPieChart"></canvas>
                                     </div>
                                     <hr>
-                                    Current Winner is 
+                                    Current Leader is 
                                     <h4>
                                         <b>
                                             <code>
@@ -119,12 +119,11 @@
                     <div class="row justify-content-md-center">
                         <!-- node list -->
                         <div class="col-lg-3 mb-5">
-                            <!-- card candidate -->
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3">
                                     <h6 class="m-0 font-weight-bold text-primary">All of Online Nodes : <%= nodes.length+1 %> </h6>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body table-responsive">
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
@@ -170,7 +169,7 @@
                                         <div class="col-sm-2">
                                             <div class="col mb-3">
                                                 <select class="form-select" id="displayItem" onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
-                                                    <% for( let index = 1; index <= 10; index++ ) { %>
+                                                    <% for( let index = 0; index <= 100; index+=25 ) { %>
                                                         <% if (index === blocks.limit) { %>
                                                             <option value="public?page=1&limit=<%= index %>" selected><%= index %></option>
                                                         <% } else{ %>
@@ -346,12 +345,12 @@
                         </div>
                         <!-- end blocks -->
 
-                        <!-- voters information -->
+                        <!-- voters stats -->
                         <div class="col-lg-4 mb-5">
                             <div class="card shadow mb">
                                 <!-- card header -->
                                 <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Voters Information</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Voters Statistic</h6>
                                 </div>
                                 <!-- card header -->
 
@@ -378,7 +377,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- end voters information -->
+                        <!-- end voters stats -->
 
                     </div>
                     <!-- row node & blocks -->
@@ -497,7 +496,7 @@
             }
         
             if(multiWinner.length > 1){
-                document.getElementById('winner').innerHTML = "Equal"
+                document.getElementById('winner').innerHTML = multiWinner + " <i>(equal)</i>"
             }else{
                 document.getElementById('winner').innerHTML = winner[0].candidate
             }
