@@ -270,6 +270,33 @@ app.get('/nodes', isLoggedIn, (req, res) => {
   })
 })
 
+// public page
+app.get('/public', async (req, res) => {
+  const recap = await getCandidatesRecap()
+  const nodes = net.nodes
+  const thisNode = net.networkId
+  // if query is empty, then add default query
+  if (Object.keys(req.query).length === 0) {
+    req.query = {
+      limit: 5,
+      page: 1,
+    }
+  }
+
+  const allBlocks = getBlocks()
+  const result = paginator(allBlocks, req.query.page, req.query.limit)
+  const voters = await getVoter()
+
+  res.render('public', {
+    layout: 'public',
+    recap,
+    nodes,
+    thisNode,
+    blocks: result,
+    voters,
+  })
+})
+
 // route untuk page not found
 app.use((req, res) => {
   res.status(404)
