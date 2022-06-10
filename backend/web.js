@@ -9,11 +9,10 @@ import { net } from './p2p.js'
 import expressLayouts from 'express-ejs-layouts'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
-dotenv.config({ path: './config/.env' })
-
 import { getBlocks, newBlock, isVoted, getBlock, getCandidatesRecap } from './blockchain.js'
 import { getCandidates, getVoterPasswd, getVoterPubKey, getVoter } from './getAPI.js'
 import { verify, importRsaKey } from './verification.js'
+dotenv.config({ path: './config/.env' })
 
 const app = express()
   .use(urlencoded({ extended: true }))
