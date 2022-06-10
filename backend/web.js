@@ -40,6 +40,9 @@ passport.deserializeUser((user, done) => {
 const httpServer = createServer(app)
 const io = new Server(httpServer)
 
+// p2p mesh network
+await net.join()
+
 // pagination method
 const paginator = (array, queryPage, queryLimit) => {
   let page = Number(queryPage),
@@ -82,9 +85,6 @@ passport.use(
     }
   )
 )
-
-// p2p mesh network
-await net.join()
 
 // if voter already voting, redirect to myvote
 const isVoterVoted = async (req, res, next) => {

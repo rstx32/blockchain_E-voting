@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import sha265 from 'crypto-js/sha256.js'
 import { getCandidates } from './getAPI.js'
 import { broadcastChain } from './p2p.js'
-import {io} from './web.js'
+import { io } from './web.js'
 dotenv.config({ path: './backend/config/.env' })
 const diff = parseInt(process.env.DIFFICULTY)
 
@@ -21,9 +21,7 @@ class Block {
 
 // fungsi untuk menghitung hash
 const calculateHash = (index, prevHash, timestamp, data, difficulty, nonce) => {
-  return sha265(
-    index + prevHash + timestamp + data + difficulty + nonce
-  ).toString()
+  return sha265(index + prevHash + timestamp + data + difficulty + nonce).toString()
 }
 
 // fungsi untuk menghitung hash (parameter : block)
@@ -77,10 +75,7 @@ const getBlocks = () => {
 
 // replace current blockchain
 const replaceChain = async (newBlockchain) => {
-  if (
-    isBlockchainValid(newBlockchain) &&
-    newBlockchain.length > getBlocks().length
-  ) {
+  if (isBlockchainValid(newBlockchain) && newBlockchain.length > getBlocks().length) {
     console.log(`replacing current blockchain with received blockchain\n`)
     blockchain = newBlockchain
     io.sockets.emit('broadcast', await getCandidatesRecap())
