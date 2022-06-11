@@ -78,7 +78,8 @@ const replaceChain = async (newBlockchain) => {
   if (isBlockchainValid(newBlockchain) && newBlockchain.length > getBlocks().length) {
     console.log(`replacing current blockchain with received blockchain\n`)
     blockchain = newBlockchain
-    io.sockets.emit('broadcast', await getCandidatesRecap()).emit('voters', getBlocks())
+    io.sockets.emit('broadcast', await getCandidatesRecap())
+    io.sockets.emit('voters', getBlocks())
   } else if (newBlockchain.length === getBlocks().length) {
     console.log(`current and received blockchain are the same length\n`)
   } else {
@@ -88,7 +89,8 @@ const replaceChain = async (newBlockchain) => {
 
 const forceReplaceChain = async (newBlockchain) => {
   blockchain = newBlockchain
-  io.sockets.emit('broadcast', await getCandidatesRecap()).emit('voters', getBlocks())
+  io.sockets.emit('broadcast', await getCandidatesRecap())
+  io.sockets.emit('voters', getBlocks())
 }
 
 // membuat block baru
@@ -105,7 +107,9 @@ const addBlock = async (block) => {
     blockchain.push(block)
     console.log(`a new block added! ${block.hash}`)
     broadcastChain(blockchain)
-    io.sockets.emit('broadcast', await getCandidatesRecap()).emit('voters', getBlocks())
+    
+    io.sockets.emit('broadcast', await getCandidatesRecap())
+    io.sockets.emit('voters', getBlocks())
 
     return true
   }

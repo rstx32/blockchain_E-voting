@@ -421,7 +421,7 @@
             createPieChart(message)
         }).on('voters', (message) => {
             document.getElementById('votersVoted').innerHTML = message.length-1
-            document.getElementById('votersUnvoted').innerHTML = <% voters.totalDocs %> - (message.length-1)
+            document.getElementById('votersUnvoted').innerHTML = <%= voters.totalDocs %> - (message.length-1)
         })
     </script>
 
