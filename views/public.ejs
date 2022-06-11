@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" type="image/x-icon" href="/EvB.png">
-    <title>EvB Node - Public</title>
+    <title>EvB Node - Public Page</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.1.4/css/sb-admin-2.min.css" integrity="sha512-Mk4n0eeNdGiUHlWvZRybiowkcu+Fo2t4XwsJyyDghASMeFGH6yUXcdDI3CKq12an5J8fq4EFzRVRdbjerO3RmQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -35,7 +35,7 @@
 
                     <!-- Page Heading -->
                     <div class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 d-sm-flex align-items-center">
-                        <h1 class="h3 mb-0 text-gray-800">Public</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Public Page</h1>
                     </div>
 
                     <!-- Topbar Navbar -->
@@ -43,7 +43,7 @@
 
                         <!-- Nav Item - User Information -->
                         <li class="nav-item">
-                            <a href="/login" class="btn btn-primary" tabindex="-1" role="button" aria-disabled="false">Login</a>
+                            <a href="/login" class="btn btn-primary" tabindex="-1" role="button">Login</a>
                         </li>
                         <!-- End Nav Item - User Information -->
 
@@ -365,12 +365,12 @@
                                             <tr>
                                                 <td>Total Voters Voted</td>
                                                 <td>:</td>
-                                                <td><%= blocks.total-1 %></td>
+                                                <td id="votersVoted"><%= blocks.total-1 %></td>
                                             </tr>
                                             <tr>
                                                 <td>Total Voters Unvoted</td>
                                                 <td>:</td>
-                                                <td><%= voters.totalDocs - (blocks.total-1) %></td>
+                                                <td id="votersUnvoted"><%= voters.totalDocs - (blocks.total-1) %></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -419,6 +419,9 @@
                 document.getElementById(`liveCount-${element._id}`).innerHTML = element.count;
             });
             createPieChart(message)
+        }).on('voters', (message) => {
+            document.getElementById('votersVoted').innerHTML = message.length-1
+            document.getElementById('votersUnvoted').innerHTML = <% voters.totalDocs %> - (message.length-1)
         })
     </script>
 

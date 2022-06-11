@@ -39,6 +39,7 @@ passport.deserializeUser((user, done) => {
 })
 const httpServer = createServer(app)
 const io = new Server(httpServer)
+export { io }
 
 // p2p mesh network
 await net.join()
@@ -310,5 +311,3 @@ app.use((req, res) => {
 httpServer.listen(process.env.HTTP_PORT, () => {
   console.log(`EvB-node listening on port : http://localhost:${process.env.HTTP_PORT}/`)
 })
-
-export { io }
