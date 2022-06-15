@@ -73,7 +73,8 @@ passport.use(
     },
     async (nim, password, done) => {
       const voterPassword = await getVoterPasswd(nim)
-      if (voterPassword === null) {
+
+      if (voterPassword === null || voterPassword === undefined) {
         return done(null, false)
       }
 
@@ -134,7 +135,7 @@ app.post(
     failureRedirect: '/login',
     failureFlash: {
       type: 'messageFailure',
-      message: 'wrong nim or password!',
+      message: 'wrong nim or password or password unset!',
     },
     successRedirect: '/',
   }),
