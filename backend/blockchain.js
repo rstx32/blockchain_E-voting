@@ -294,17 +294,18 @@ export {
 //   prevBlock,
 //   1654298449,
 //   {
-//     voterID: 'contoh block',
-//     candidateID: 'contoh block',
-//     signature: 'contoh block',
+//     voterID: 'contoh block intruder',
+//     candidateID: 'contoh block intruder',
+//     signature: 'contoh block intruder',
 //   },
 //   calculateHash(0, prevBlock, 1654298449, {
-//     voterID: 'contoh block',
-//     candidateID: 'contoh block',
-//     signature: 'contoh block',
+//     voterID: 'contoh block intruder',
+//     candidateID: 'contoh block intruder',
+//     signature: 'contoh block intruder',
 //   }),
 //   5,
 //   78
 // )
 // blockchain.push(contoh)
+
 // blockchain.pop()
